@@ -81,7 +81,7 @@ See more about Starship in [Repository of Starship](https://github.com/starship/
 
 If you just want to use the pre-configured environment without modifications:
 
-1. Go to the repository page <https://github.com/Xinor-a/MyDevelopmentEnvironment>.
+1. Go to the repository page <https://github.com/Xinor-a/portable-neovim-devbox>.
 2. Click on the green "Code" button and select "Download ZIP".
 3. Extract the downloaded ZIP file anywhere you want to locate.
 
@@ -93,19 +93,19 @@ If you also want to customize configurations or contribute to the project:
 2. Open your terminal and run the following command to clone the repository:
 
    ```bash
-   git clone https://github.com/Xinor-a/MyDevelopmentEnvironment.git
+   git clone https://github.com/Xinor-a/portable-neovim-devbox.git
    ```
 
    or
 
     ```bash
-    git clone git@github.com:Xinor-a/MyDevelopmentEnvironment.git
+    git clone git@github.com:Xinor-a/portable-neovim-devbox.git
     ```
 
 3. Navigate into the cloned directory:
 
    ```bash
-   cd MyDevelopmentEnvironment
+   cd portable-neovim-devbox
    ```
 
 ### 2. Building the Docker Image
@@ -131,7 +131,7 @@ docker-compose up -d
 To enter your Neovim development environment, run:
 
 ```bash
-docker-compose exec DevBox /bin/bash
+docker-compose exec devbox /bin/bash
 ```
 
 You can also use SSH to connect if your host has SSH client installed. Use the following command:
