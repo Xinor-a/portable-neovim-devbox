@@ -6,12 +6,16 @@ services:
     container_name: my_devcontainer
     volumes:
       - ./projects/:/root/projects
-      - devenv:/etc/devenv
+      - ./ssh/:/etc/ssh/
+      - root-dotssh:/root/.ssh
+      - ./devenv/:/etc/devenv
       - nvim-plugin:/root/.local/share/nvim
       - nvim-cache:/root/.cache/nvim
+    ports:
+      - 3000:22
     tty: true
 
 volumes:
-  devenv:
+  root-dotssh:
   nvim-plugin:
   nvim-cache:

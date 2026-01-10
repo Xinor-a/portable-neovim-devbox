@@ -35,7 +35,7 @@ add_path_of() {
 }
 
 # Initialization starts here...
-log_info "Starting WSL initialization script..."
+log_info "Starting initialization script..."
 
 # Install basic development tools
 log_info "Installing basic development tools..."
@@ -150,6 +150,12 @@ done
 
 source /etc/bash.bashrc
 
+cat << '_EOF_' >> /etc/entrypoint.sh
+
+exec "$@"
+
+_EOF_
+
 log_info "====================================="
-log_info "Completed WSL initialization script."
+log_info "Completed initialization script."
 log_info "====================================="
