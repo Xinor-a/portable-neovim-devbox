@@ -17,23 +17,21 @@ RUN chmod 777 /tmp/scripts/init.sh
 # Create necessary directories for the volume mount (devenv)
 RUN mkdir -p /etc/devenv/
 RUN chmod 777 /etc/devenv/
+COPY devenv/ /etc/devenv/
 
 # Create necessary directories for the volume mount (ssh) and set permissions
 RUN mkdir -p /etc/ssh/
 RUN chmod 777 /etc/ssh/
-RUN mkdir -p /etc/ssh/
-RUN chmod 777 /etc/ssh/
+
 # Set password for root user
-RUN echo 'root:password' | chpasswd
+RUN echo 'root:root' | chpasswd
 # Expose SSH port
 EXPOSE 22
-
-# Copy entrypoint script and set permissions
-COPY scripts/entrypoint.sh /etc/entrypoint.sh
-RUN chmod +x /etc/entrypoint.sh
 
 # Initialize log directory and run initialization script
 RUN mkdir -p /var/log && chmod 777 /var/log
 RUN /tmp/scripts/init.sh 2>&1 | tee /var/log/init.log
 
-ENTRYPOINT ["/etc/entrypoint.sh"]
+ENTRYPOINT ["/etc/devenv/entrypoint/entrypoint.sh"]
+
+CMD ["tail", "-f", "/dev/null"]
