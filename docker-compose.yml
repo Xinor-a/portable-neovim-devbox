@@ -3,16 +3,15 @@ services:
     build:
       context: .
       dockerfile: dockerfile
-    container_name: my_devcontainer
     volumes:
-      - ./projects/:/root/projects
-      - ./ssh/:/etc/ssh/
-      - root-dotssh:/root/.ssh
       - ./devenv/:/etc/devenv
+      - ./ssh/:/etc/ssh/
+      - ./projects/:/root/projects
+      - root-dotssh:/root/.ssh
       - nvim-plugin:/root/.local/share/nvim
       - nvim-cache:/root/.cache/nvim
     ports:
-      - 3000:22
+      - "${HOST_PORT:-3000}:22"
     tty: true
 
 volumes:

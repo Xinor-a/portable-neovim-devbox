@@ -148,13 +148,7 @@ for dir in $(find "$SCRIPT_DIR" -mindepth 1 -maxdepth 1 -type d | sort); do
     fi
 done
 
-source /etc/bash.bashrc
-
-cat << '_EOF_' >> /etc/entrypoint.sh
-
-exec "$@"
-
-_EOF_
+chmod +x /etc/devenv/entrypoint/entrypoint.sh
 
 log_info "====================================="
 log_info "Completed initialization script."
