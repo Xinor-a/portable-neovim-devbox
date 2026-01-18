@@ -6,8 +6,10 @@ services:
     volumes:
       - ./devenv/:/etc/devenv
       - ./ssh/:/etc/ssh/
-      - ./projects/:/root/projects
+      - ../projects/:/root/projects-master
+      - projects:/root/projects
       - root-dotssh:/root/.ssh
+      - unison-archive:/root/.unison
       - nvim-plugin:/root/.local/share/nvim
       - nvim-cache:/root/.cache/nvim
     ports:
@@ -15,6 +17,8 @@ services:
     tty: true
 
 volumes:
+  projects:
   root-dotssh:
+  unison-archive:
   nvim-plugin:
   nvim-cache:

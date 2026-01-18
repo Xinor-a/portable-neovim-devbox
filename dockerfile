@@ -3,7 +3,8 @@ FROM ubuntu:24.04
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y \
-        sudo
+        sudo \
+        tini
 
 # Set timezone to Asia/Tokyo
 ENV DEBIAN_FRONTEND=noninteractive
@@ -32,6 +33,6 @@ EXPOSE 22
 RUN mkdir -p /var/log && chmod 777 /var/log
 RUN /tmp/scripts/init.sh 2>&1 | tee /var/log/init.log
 
-ENTRYPOINT ["/etc/devenv/entrypoint/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/etc/devenv/entrypoint/entrypoint.sh"]
 
 CMD ["tail", "-f", "/dev/null"]

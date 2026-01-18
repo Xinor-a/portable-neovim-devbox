@@ -1,0 +1,27 @@
+# Unison configuration for projects sync
+# This file is copied to /root/.unison/default.prf at container startup
+
+# Sync roots
+root = /root/projects
+root = /root/projects-master
+
+# Operation mode
+auto = true
+batch = true
+repeat = watch
+prefer = newer
+
+# Ignore patterns
+ignore = Name node_modules
+ignore = Name __pycache__
+ignore = Name .DS_Store
+ignore = Name *.swp
+ignore = Name *.tmp
+
+# Permission handling (avoid issues between host and container)
+perms = 0
+dontchmod = true
+
+# Logging
+log = true
+logfile = /var/log/unison.log

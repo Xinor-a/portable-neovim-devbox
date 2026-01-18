@@ -53,6 +53,8 @@ The default configuration is based on [Gruvbox Rainbow Preset](https://starship.
 You can customize as you like in `ProjectRoot/devenv/starship/starship.toml`!  
 See more about Starship in [Repository of Starship](https://github.com/starship/starship)!
 - **Terminal Multiplexer**: Tmux for managing multiple terminal sessions, split panes, and persistent sessions that survive disconnections. See more about Tmux in [Repository of Tmux](https://github.com/tmux/tmux)!
+- **Real-time File Synchronization**: Unison for bidirectional file synchronization between `ProjectRoot/projects/` directory (mounted by name `/root/projects-master/` in the container) on the host and `/root/projects/` directory in the container, ensuring your projects stay up-to-date seamlessly.  
+See more about Unison in [Repository of Unison](https://github.com/bcpierce00/unison)!
 
 ## 📋 Prerequisites
 
@@ -147,8 +149,16 @@ ssh root@localhost -p 3000
 ```plaintext
 ProjectRoot
 ├── README.md (this file)
-├── devenv: Configuration files for any tools in the development environment
+├── devenv: Configuration files for any tools in the development environment (mounted: shared with /etc/devenv/ in the container)
+│   ├── bash.bashrc: Global bash configuration
+│   ├── entrypoint
+│   │   ├── entrypoint.sh: Container startup orchestrator
+│   │   ├── 1-1_InstallLatestOpenSsh
+│   │   │   └── subentry.sh: SSH startup script
+│   │   └── 1-5_UnisonInitial
+│   │       └── subentry.sh: Unison initialization script
 │   ├── git
+│   │   ├── .gitattributes
 │   │   └── .gitconfig
 │   ├── nvim
 │   │   ├── init.lua
@@ -156,21 +166,20 @@ ProjectRoot
 │   │   ├── lsp
 │   │   │   └── lua-ls.lua
 │   │   └── lua
-│   │       ├── config: configuration scripts
-│   │       │   ├── keymaps.lua: custom keybindings
-│   │       │   ├── lazy.lua: plugin manager setup
-│   │       │   └── plugins: lua modules for plugins
-│   │       │       └── define: plugin definitions
-│   │       └── myluamodule.lua: helpers/utilities for Neovim config scripts
+│   │       └── config: configuration scripts
+│   │           ├── keymaps.lua: custom keybindings
+│   │           ├── lazy.lua: plugin manager setup
+│   │           └── plugins: lua modules for plugins
+│   │               └── define: plugin definitions
 │   ├── starship
 │   │   └── starship.toml: Starship prompt configuration
-│   └── tmux
-│        └── .tmux.conf: Tmux configuration file
+│   ├── tmux
+│   │   └── .tmux.conf: Tmux configuration file
+│   └── unison
+│       └── default.prf: Unison file sync configuration
 ├── docker-compose.yml
 ├── dockerfile
-├── projects: Your code projects (mounted: shared with ProjectRoot/projects/)
-│   └── README.md
-├── scripts: Installation and setup scripts
+├── scripts: Installation and setup scripts (executed during docker build)
 │   ├── 1-0_InstallLatestGit
 │   │   └── init.sh
 │   ├── 1-1_InstallLatestOpenSsh
@@ -181,30 +190,34 @@ ProjectRoot
 │   │   └── init.sh
 │   ├── 1-4_InstallLatestTmux
 │   │   └── init.sh
-│   ├── entrypoint.sh (called from dockerfile)
+│   ├── 1-5_InstallUnison
+│   │   └── init.sh
 │   └── init.sh
-└── ssh: SSH server configuration and host keys (mounted: shared with ProjectRoot/ssh/)
-     ├── ssh_host_ecdsa_key
-     ├── ssh_host_ecdsa_key.pub
-     ├── ssh_host_ed25519_key
-     ├── ssh_host_ed25519_key.pub
-     ├── ssh_host_rsa_key
-     ├── ssh_host_rsa_key.pub
-     └── sshd_config
+├── ssh: SSH server configuration and host keys (mounted: shared with /etc/ssh/ in the container)
+│   ├── ssh_host_ecdsa_key
+│   ├── ssh_host_ecdsa_key.pub
+│   ├── ssh_host_ed25519_key
+│   ├── ssh_host_ed25519_key.pub
+│   ├── ssh_host_rsa_key
+│   ├── ssh_host_rsa_key.pub
+│   └── sshd_config
+└── projects: Put your all projects here! (mounted: shared with /root/projects-master/ in the container)
 ```
 
 ### Configuration Files
 
 #### `ProjectRoot/devenv/`
 
-| File                       | Description                            |
-| :------------------------- | :------------------------------------- |
-| `./git/.gitconfig`         | Git global configuration               |
-| `./nvim/`                  | Neovim configuration files and plugins |
-| `./starship/starship.toml` | Starship prompt configuration          |
-| `./tmux/.tmux.conf`        | Tmux configuration file                |
+| File                       | Description                                    |
+| :------------------------- | :--------------------------------------------- |
+| `./bash.bashrc`            | Global bash configuration for the container    |
+| `./git/.gitconfig`         | Git global configuration                       |
+| `./nvim/`                  | Neovim configuration files and plugins         |
+| `./starship/starship.toml` | Starship prompt configuration                  |
+| `./tmux/.tmux.conf`        | Tmux configuration file                        |
+| `./unison/default.prf`     | Unison bidirectional file sync configuration   |
 
-#### `ProjectRoot/projects/`
+#### `ProjectRoot/ssh/`
 
 | File               | Description                                             |
 | :----------------- | :------------------------------------------------------ |
@@ -212,15 +225,15 @@ ProjectRoot
 
 ### `ProjectRoot/scripts/`
 
-| File                                | Description                                                   |
-| :---------------------------------- | :------------------------------------------------------------ |
-| `entrypoint.sh`                     | Entrypoint script called from dockerfile                      |
-| `init.sh`                           | Installation and setup scripts (called from `entrypoint.sh`)  |
-| `1-0_InstallLatestGit/init.sh`      | Script to install the latest Git (called from `init.sh`)      |
-| `1-1_InstallLatestOpenSsh/init.sh`  | Script to install the latest OpenSSH (called from `init.sh`)  |
-| `1-2_InstallLatestNeovim/init.sh`   | Script to install the latest Neovim (called from `init.sh`)   |
-| `1-3_InstallLatestStarship/init.sh` | Script to install the latest Starship (called from `init.sh`) |
-| `1-4_InstallLatestTmux/init.sh`     | Script to install the latest Tmux (called from `init.sh`)     |
+| File                                | Description                                                      |
+| :---------------------------------- | :--------------------------------------------------------------- |
+| `init.sh`                           | Main installation orchestrator (called from dockerfile)          |
+| `1-0_InstallLatestGit/init.sh`      | Script to install the latest Git (called from `init.sh`)         |
+| `1-1_InstallLatestOpenSsh/init.sh`  | Script to install the latest OpenSSH (called from `init.sh`)     |
+| `1-2_InstallLatestNeovim/init.sh`   | Script to install the latest Neovim (called from `init.sh`)      |
+| `1-3_InstallLatestStarship/init.sh` | Script to install the latest Starship (called from `init.sh`)    |
+| `1-4_InstallLatestTmux/init.sh`     | Script to install the latest Tmux (called from `init.sh`)        |
+| `1-5_InstallUnison/init.sh`         | Script to install Unison file sync tool (called from `init.sh`)  |
 
 ## 🤝 Contributing
 
