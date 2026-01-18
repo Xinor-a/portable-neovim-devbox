@@ -10,6 +10,7 @@ auto = true
 batch = true
 repeat = watch
 prefer = newer
+confirmbigdel = false
 
 # Ignore patterns
 ignore = Name node_modules
