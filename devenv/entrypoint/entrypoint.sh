@@ -22,6 +22,21 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+if [ ! -f /etc/devenv/bash.bashrc ]; then
+    if [ ! -e /etc/bash.bashrc ]; then
+        ls -t /etc/bash.bashrc.backup*.bak | head -n 1 | xargs -I{} cp {} /etc/devenv/bash.bashrc
+    elif [ -f /etc/bash.bashrc ]; then
+        cp /etc/bash.bashrc /etc/bash.bashrc.backup_$(date +%Y%m%d_%H%M%S)
+        mv /etc/bash.bashrc /etc/devenv/bash.bashrc
+    elif [ -L /etc/bash.bashrc ]; then
+        rm /etc/bash.bashrc
+        ls -t /etc/bash.bashrc.backup*.bak | head -n 1 | xargs -I{} cp {} /etc/devenv/bash.bashrc
+    fi
+elif [ -f /etc/bash.bashrc ]; then
+    cp /etc/bash.bashrc /etc/bash.bashrc.backup_$(date +%Y%m%d_%H%M%S)
+fi
+ln -sf /etc/devenv/bash.bashrc /etc/bash.bashrc
+
 # Loop through all subdirectories in lexicographical order
 for dir in $(find "$SCRIPT_DIR" -mindepth 1 -maxdepth 1 -type d | sort); do
     if [ -f "$dir/subentry.sh" ]; then
@@ -38,10 +53,5 @@ for dir in $(find "$SCRIPT_DIR" -mindepth 1 -maxdepth 1 -type d | sort); do
         cd "$SCRIPT_DIR"
     fi
 done
-
-if [ ! -f /etc/devenv/bash.bashrc ]; then
-    mv /etc/bash.bashrc /etc/devenv/bash.bashrc
-fi
-ln -sf /etc/devenv/bash.bashrc /etc/bash.bashrc
 
 exec "$@"
