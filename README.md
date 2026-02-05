@@ -34,24 +34,24 @@ This repository provides a **fully configured Docker container** for a portable 
 ### 📚 Recommended Background
 
 - Basic understanding of:
-  - Command-line navigation (`cd`, `ls`, `mkdir`)
-  - Text editing concepts (insert mode, normal mode)
-  - Git basics (clone, commit, push)
-  - Docker fundamentals (images, containers, docker-compose)
+    - Command-line navigation (`cd`, `ls`, `mkdir`)
+    - Text editing concepts (insert mode, normal mode)
+    - Git basics (clone, commit, push)
+    - Docker fundamentals (images, containers, docker-compose)
 - Willingness to learn Neovim keybindings and modal editing
 
 ## ✨ Features
 
 - **Nerd Fonts**: Patched fonts with icons and glyphs for enhanced terminal aesthetics and better visual feedback in your editor  
-Pre-installed fonts are below(Needless to say, you can add more fonts as you like!):
-  - [JetBrainsMonoNerdFont_v3.0.2](https://github.com/ryanoasis/nerd-fonts/)
-  - [MoralerspaceHWJPDOC_v2.0.0](https://github.com/yuru7/moralerspace)
+  Pre-installed fonts are below(Needless to say, you can add more fonts as you like!):
+    - [JetBrainsMonoNerdFont_v3.0.2](https://github.com/ryanoasis/nerd-fonts/)
+    - [MoralerspaceHWJPDOC_v2.0.0](https://github.com/yuru7/moralerspace)
 - **Editor**: Pre-installed Neovim with syntax highlighting, autocompletion, and custom keybindings for efficient coding  
-See more about Neovim in [Repository of Neovim](https://github.com/neovim/neovim)!
+  See more about Neovim in [Repository of Neovim](https://github.com/neovim/neovim)!
 - **Modern Prompt**: Starship prompt showing git status, language versions, execution time, and more at a glance  
-The default configuration is based on [Gruvbox Rainbow Preset](https://starship.rs/ja-JP/presets/gruvbox-rainbow)  
-You can customize as you like in `ProjectRoot/devenv/starship/starship.toml`!  
-See more about Starship in [Repository of Starship](https://github.com/starship/starship)!
+  The default configuration is based on [Gruvbox Rainbow Preset](https://starship.rs/ja-JP/presets/gruvbox-rainbow)  
+  You can customize as you like in `ProjectRoot/dotfiles/starship/starship.toml`!  
+  See more about Starship in [Repository of Starship](https://github.com/starship/starship)!
 - **Terminal Multiplexer**: Tmux for managing multiple terminal sessions, split panes, and persistent sessions that survive disconnections. See more about Tmux in [Repository of Tmux](https://github.com/tmux/tmux)!
 
 ## 📋 Prerequisites
@@ -92,11 +92,11 @@ If you also want to customize configurations or contribute to the project:
 1. Ensure you have Git installed on your machine.
 2. Open your terminal and run the following command to clone the repository:
 
-   ```bash
-   git clone https://github.com/Xinor-a/portable-neovim-devbox.git
-   ```
+    ```bash
+    git clone https://github.com/Xinor-a/portable-neovim-devbox.git
+    ```
 
-   or
+    or
 
     ```bash
     git clone git@github.com:Xinor-a/portable-neovim-devbox.git
@@ -104,9 +104,9 @@ If you also want to customize configurations or contribute to the project:
 
 3. Navigate into the cloned directory:
 
-   ```bash
-   cd portable-neovim-devbox
-   ```
+    ```bash
+    cd portable-neovim-devbox
+    ```
 
 ### 2. Building the Docker Image
 
@@ -147,41 +147,33 @@ ssh root@localhost -p 3000
 ```plaintext
 ProjectRoot
 ├── README.md (this file)
-├── devenv: Configuration files for any tools in the development environment
+├── dotfiles: Configuration files for any tools in the development environment
 │   ├── git
+│   │   ├── .gitattributes
 │   │   └── .gitconfig
 │   ├── nvim
-│   │   ├── init.lua
-│   │   ├── lazy-lock.json
-│   │   ├── lsp
-│   │   │   └── lua-ls.lua
-│   │   └── lua
-│   │       ├── config: configuration scripts
-│   │       │   ├── keymaps.lua: custom keybindings
-│   │       │   ├── lazy.lua: plugin manager setup
-│   │       │   └── plugins: lua modules for plugins
-│   │       │       └── define: plugin definitions
-│   │       └── myluamodule.lua: helpers/utilities for Neovim config scripts
+│   │   └─ put your neovim config files and plugins here !
 │   ├── starship
 │   │   └── starship.toml: Starship prompt configuration
 │   └── tmux
 │        └── .tmux.conf: Tmux configuration file
 ├── docker-compose.yml
 ├── dockerfile
-├── projects: Your code projects (mounted: shared with ProjectRoot/projects/)
-│   └── README.md
 ├── scripts: Installation and setup scripts
-│   ├── 1-0_InstallLatestGit
+│   ├── 1-0_Git
 │   │   └── init.sh
-│   ├── 1-1_InstallLatestOpenSsh
+│   ├── 1-1_OpenSsh
 │   │   └── init.sh
-│   ├── 1-2_InstallLatestNeovim
+│   ├── 1-2_Neovim
 │   │   └── init.sh
-│   ├── 1-3_InstallLatestStarship
+│   ├── 1-3_Starship
 │   │   └── init.sh
-│   ├── 1-4_InstallLatestTmux
+│   ├── 1-4_Tmux
 │   │   └── init.sh
-│   ├── entrypoint.sh (called from dockerfile)
+│   ├── entrypoint
+│   │   └── 1-1_OpenSsh
+│   │        └── subentry.sh
+│   │   └── entrypoint.sh
 │   └── init.sh
 └── ssh: SSH server configuration and host keys (mounted: shared with ProjectRoot/ssh/)
      ├── ssh_host_ecdsa_key
@@ -191,11 +183,12 @@ ProjectRoot
      ├── ssh_host_rsa_key
      ├── ssh_host_rsa_key.pub
      └── sshd_config
+└── projects: Place to store your projects (mounted: shared with ProjectRoot/projects/)
 ```
 
 ### Configuration Files
 
-#### `ProjectRoot/devenv/`
+#### `ProjectRoot/dotfiles/`
 
 | File                       | Description                            |
 | :------------------------- | :------------------------------------- |
@@ -212,15 +205,16 @@ ProjectRoot
 
 ### `ProjectRoot/scripts/`
 
-| File                                | Description                                                   |
-| :---------------------------------- | :------------------------------------------------------------ |
-| `entrypoint.sh`                     | Entrypoint script called from dockerfile                      |
-| `init.sh`                           | Installation and setup scripts (called from `entrypoint.sh`)  |
-| `1-0_InstallLatestGit/init.sh`      | Script to install the latest Git (called from `init.sh`)      |
-| `1-1_InstallLatestOpenSsh/init.sh`  | Script to install the latest OpenSSH (called from `init.sh`)  |
-| `1-2_InstallLatestNeovim/init.sh`   | Script to install the latest Neovim (called from `init.sh`)   |
-| `1-3_InstallLatestStarship/init.sh` | Script to install the latest Starship (called from `init.sh`) |
-| `1-4_InstallLatestTmux/init.sh`     | Script to install the latest Tmux (called from `init.sh`)     |
+| File                                 | Description                                                   |
+| :----------------------------------- | :------------------------------------------------------------ |
+| `init.sh`                            | Installation and setup scripts (called from `entrypoint.sh`)  |
+| `1-0_Git/init.sh`                    | Script to install the latest Git (called from `init.sh`)      |
+| `1-1_OpenSsh/init.sh`                | Script to install the latest OpenSSH (called from `init.sh`)  |
+| `1-2_Neovim/init.sh`                 | Script to install the latest Neovim (called from `init.sh`)   |
+| `1-3_Starship/init.sh`               | Script to install the latest Starship (called from `init.sh`) |
+| `1-4_Tmux/init.sh`                   | Script to install the latest Tmux (called from `init.sh`)     |
+| `entrypoint/entrypoint.sh`           | Entrypoint script                                             |
+| `entrypoint/1-1_OpenSsh/subentry.sh` | Entrypoint script for OpenSSH (called from `entrypoint.sh`)   |
 
 ## 🤝 Contributing
 

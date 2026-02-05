@@ -1,15 +1,26 @@
 #!/bin/bash
 
+set -e
+
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 cd $SCRIPT_DIR
 
-# color definitions
+################################################################################
+# Log functions
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# log functions
+log_output() {
+    echo -e "${NC}$1"
+}
+
+log_status() {
+    echo -e "${NC}[STATUS]${NC} $1"
+}
+
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -22,7 +33,9 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# add path to /etc/bash.bashrc if not already present
+################################################################################
+# Function to add a path to $PATH if not already present
+
 add_path_of() {
     if ! grep -q "$1" /etc/bash.bashrc; then
         if grep -q "^export PATH=" /etc/bash.bashrc; then
@@ -34,64 +47,77 @@ add_path_of() {
     fi
 }
 
+################################################################################
 # Initialization starts here...
-log_info "Starting initialization script..."
 
+log_output "========================================"
+log_info "Started initialization script."
+log_output ""
+
+################################################################################
 # Install basic development tools
-log_info "Installing basic development tools..."
-apt-get update \
-&& apt-get install -y \
+
+log_status "Installing basic development tools..."
+
+if ! apt-get update \
+|| ! apt-get install -y \
     build-essential \
     curl \
     fontconfig \
     htop \
     jq \
+    less \
     nano \
     tree \
     unzip \
     vim \
     wget \
-    zip
-
-# Set timezone to Asia/Tokyo
-log_info "Setting timezone to Asia/Tokyo..."
-if ! timedatectl set-timezone Asia/Tokyo; then
-    log_warn "Failed to set timezone (this is normal on WSL1)"
+    zip \
+|| ! apt-get autoremove -y \
+|| ! rm -rf /var/lib/apt/lists/*; then
+    log_error "Failed to install basic development tools"
+    exit 1
 fi
 
+log_status "Completed."
+log_output ""
+
+################################################################################
 # Backup and configure /bash.bashrc
-log_info "Configuring shell environment..."
-if [ -f /etc/bash.bashrc ]; then
-    cp /etc/bash.bashrc /etc/bash.bashrc.backup_$(date +%Y%m%d_%H%M%S)
-    log_info "Created backup of /etc/bash.bashrc"
+
+log_status "Started to create backup of /etc/bash.bashrc..."
+
+cp /etc/bash.bashrc /etc/bash.bashrc.backup_$(date +%Y%m%d_%H%M%S)
+
+log_status "Completed."
+log_output ""
+
+################################################################################
+# Set permissions for /etc/devbox/dotfiles/
+
+log_status "Started setting permissions for /etc/devbox/dotfiles/..."
+
+if ! chown -R :${GROUP_NAME} /etc/devbox/dotfiles/; then
+    log_error "Failed to change group ownership of /etc/devbox/dotfiles/"
+    exit 1
+fi
+if ! chmod g+x /etc/devbox/dotfiles/; then
+    log_error "Failed to set execute permission on /etc/devbox/dotfiles/"
+    exit 1
+fi
+if ! chmod -R g+rw /etc/devbox/dotfiles/; then
+    log_error "Failed to set read/write permissions on /etc/devbox/dotfiles/"
+    exit 1
 fi
 
-# Install Nerd Fonts
-cd /usr/share/fonts/
+log_status "Completed."
+log_output ""
 
-FontName="JetBrainsMono"
-if [ ! -f ./$FontName.zip ]; then
-    log_info "Installing $FontName..."
-    if wget -P . https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/$FontName.zip; then
-        unzip $FontName.zip \
-            && fc-cache -fv
-    else
-        log_error "Failed to download $FontName"
-    fi
-fi
+################################################################################
+# Add basic aliases
 
-FontName="MoralerspaceHWJPDOC_v2.0.0"
-if [ ! -f ./$FontName.zip ]; then
-    log_info "Installing $FontName..."
-    if wget -P . https://github.com/yuru7/moralerspace/releases/download/v2.0.0/$FontName.zip; then
-        unzip $FontName.zip \
-            && fc-cache -fv
-    else
-        log_error "Failed to download $FontName"
-    fi
-fi
+log_status "Started adding aliases to /etc/bash.bashrc..."
 
-# Add aliases (customize as needed)
 if ! grep -q "alias ll='ls -alF'" /etc/bash.bashrc; then
     echo "alias ll='ls -alF'" >> /etc/bash.bashrc
     log_info "Created alias 'll' for 'ls -alF'"
@@ -125,31 +151,55 @@ if ! grep -q "alias gc='git commit'" /etc/bash.bashrc; then
     log_info "Created alias 'gc' for 'git commit'"
 fi
 
-# Cleanup unnecessary packages
-log_info "Cleaning up unnecessary packages..."
-apt-get autoremove -y
-apt-get clean
+log_status "Completed."
+log_output ""
 
+################################################################################
 # Install additional tools
-log_info "Installing additional tools..."
+
+log_output "========================================"
+log_info "Started sub initialization scripts..."
+log_output ""
 
 # Loop through all subdirectories in lexicographical order
 for dir in $(find "$SCRIPT_DIR" -mindepth 1 -maxdepth 1 -type d | sort); do
     if [ -f "$dir/init.sh" ]; then
         dir_name=$(basename "$dir")
+
+        log_output "=============================="
         log_info "Executing $dir_name/init.sh..."
+        log_output ""
+
         cd "$dir"
+
+        # Source the init.sh script
         if source ./init.sh; then
             log_info "Completed $dir_name/init.sh"
+            log_output ""
         else
             log_error "Failed to execute $dir_name/init.sh"
+            log_output ""
         fi
+
+        log_info "End of $dir_name/init.sh..."
+        log_output "=============================="
+        log_output ""
+
         cd "$SCRIPT_DIR"
     fi
 done
 
-chmod +x /etc/devenv/entrypoint/entrypoint.sh
+log_info "All sub initialization scripts completed."
+log_output "========================================"
+log_output ""
 
-log_info "====================================="
+################################################################################
+# Set permissions for entrypoint script and bash.bashrc
+
+chmod +x /etc/scripts/entrypoint/entrypoint.sh
+
+################################################################################
+
+log_output "========================================"
 log_info "Completed initialization script."
-log_info "====================================="
+log_output "========================================"

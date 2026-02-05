@@ -6,4 +6,4 @@ scripts/projects/*
 ssh/*
 !ssh/ssh_config
 
-devenv/bash.bashrc
+dotfiles/*

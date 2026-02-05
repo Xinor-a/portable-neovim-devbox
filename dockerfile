@@ -1,37 +1,72 @@
 FROM ubuntu:24.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install sudo
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y \
+        gosu \
         sudo
 
-# Set timezone to Asia/Tokyo
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Tokyo
+# Create user
+ARG USER_NAME
+ENV USER_NAME=$USER_NAME
+ARG USER_ID=1001
 
-# Copy initialization scripts and set permissions
-RUN mkdir -p /tmp/scripts
-COPY scripts /tmp/scripts
-RUN chmod 777 /tmp/scripts/init.sh
+ENV GROUP_ID=1010
+ENV GROUP_NAME="g-devbox"
 
-# Create necessary directories for the volume mount (devenv)
-RUN mkdir -p /etc/devenv/
-RUN chmod 777 /etc/devenv/
-COPY devenv/ /etc/devenv/
+RUN groupadd --gid $USER_ID $USER_NAME \
+&& useradd --uid $USER_ID --gid $USER_ID -m -s /bin/bash $USER_NAME \
+&& echo "${USER_NAME}:${USER_NAME}" | chpasswd \
+&& echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
+&& chmod 0440 /etc/sudoers.d/$USER_NAME
 
-# Create necessary directories for the volume mount (ssh) and set permissions
-RUN mkdir -p /etc/ssh/
-RUN chmod 777 /etc/ssh/
+RUN groupadd --gid $GROUP_ID $GROUP_NAME \
+&& usermod -aG $GROUP_NAME root \
+&& usermod -aG $GROUP_NAME $USER_NAME
 
 # Set password for root user
 RUN echo 'root:root' | chpasswd
+
 # Expose SSH port
 EXPOSE 22
 
-# Initialize log directory and run initialization script
-RUN mkdir -p /var/log && chmod 777 /var/log
-RUN /tmp/scripts/init.sh 2>&1 | tee /var/log/init.log
+# Create necessary directories for the volume mount (ssh)
+RUN mkdir -p /etc/ssh/
+COPY ssh/ /etc/ssh/
 
-ENTRYPOINT ["/etc/devenv/entrypoint/entrypoint.sh"]
+# Create necessary directories for the volume mount (devbox)
+RUN mkdir -p /etc/devbox/ \
+    && chmod 777 /etc/devbox/
+COPY ./ /etc/devbox/
+
+# Software Neovim
+ARG NEOVIM_VERSION
+
+# Run initialization script
+RUN chmod 777 /etc/devbox/scripts/init.sh
+RUN mkdir -p /var/log && chmod 777 /var/log
+
+RUN /etc/devbox/scripts/init.sh 2>&1 | tee /var/log/init.log
+
+# Validate HOST_OS argument
+ARG HOST_OS
+
+# Add os name to enviro variable
+RUN \
+    if [ ! "$HOST_OS" = "Windows" ] \
+    && [ ! "$HOST_OS" = "MacOS" ] \
+    && [ ! "$HOST_OS" = "Linux" ] ; then \
+    echo "Unsupported HOST_OS: $HOST_OS. Supported values are Windows, MacOS, Linux." >&2; \
+    exit 1; \
+    fi
+
+ENV HOST_OS=$HOST_OS
+
+RUN chmod 777 /etc/devbox/scripts/entrypoint/entrypoint.sh
+
+ENTRYPOINT ["/etc/devbox/scripts/entrypoint/entrypoint.sh"]
 
 CMD ["tail", "-f", "/dev/null"]

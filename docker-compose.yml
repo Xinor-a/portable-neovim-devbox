@@ -1,20 +1,25 @@
 services:
-  devbox:
-    build:
-      context: .
-      dockerfile: dockerfile
-    volumes:
-      - ./devenv/:/etc/devenv
-      - ./ssh/:/etc/ssh/
-      - ./projects/:/root/projects
-      - root-dotssh:/root/.ssh
-      - nvim-plugin:/root/.local/share/nvim
-      - nvim-cache:/root/.cache/nvim
-    ports:
-      - "${HOST_PORT:-3000}:22"
-    tty: true
+    devbox:
+        build:
+            context: .
+            args:
+                NEOVIM_VERSION: "${NEOVIM_VERSION:-stable}"
+                USER_NAME: "${USER_NAME:-user}"
+                HOST_OS: "${HOST_OS:-Windows}"
+            dockerfile: dockerfile
+        volumes:
+            - ./:/etc/devbox/
+            - ../projects/:/home/${USER_NAME}/projects
+            - root-dotssh:/root/.ssh
+            - user-dotssh:/home/${USER_NAME}/.ssh
+            - root-nvim-plugin:/root/.local/share/nvim
+            - user-nvim-plugin:/home/${USER_NAME}/.local/share/nvim
+        ports:
+            - "${HOST_PORT:-3000}:22"
+        tty: true
 
 volumes:
-  root-dotssh:
-  nvim-plugin:
-  nvim-cache:
+    root-dotssh:
+    user-dotssh:
+    root-nvim-plugin:
+    user-nvim-plugin:

@@ -365,31 +365,258 @@ code {
           : 'default'
     });
   </script>
-<h1 id="readme---mywslsetting">README - MyWslSetting</h1>
-<h2 id="%E6%A6%82%E8%A6%81">概要</h2>
-<p>このリポジトリは、Windows Subsystem for Linux (WSL) 環境の設定スクリプトをまとめたものです。<br>
-以下の手順でWSL環境をセットアップできます。</p>
-<ol>
-<li><code>init.sh</code> スクリプトを実行して、必要なソフトウェアや設定をインストールします。</li>
-<li>各サブディレクトリにあるスクリプトが個別の設定を担当しています。
+<h1 id="portable-neovim-devbox">Portable Neovim DevBox</h1>
+<p>A fully configured, portable Docker container with Neovim, Tmux, and modern CLI tools for developers.</p>
+<h2 id="%F0%9F%9A%80-overview">🚀 Overview</h2>
+<p>This repository provides a <strong>fully configured Docker container</strong> for a portable Neovim-based development environment. Whether you're setting up a new machine or working across multiple systems, this container ensures consistency and includes all the essential tools and configurations you need to be productive immediately.</p>
+<h3 id="key-benefits">Key Benefits</h3>
 <ul>
-<li>それぞれのスクリプトは、メインの <code>init.sh</code> から自動的に呼び出されます。</li>
-<li>各スクリプトの詳細は、対応するディレクトリ内の <code>README.md</code> を参照してください。</li>
+<li>🔄 Reproducible Neovim environment across any machine</li>
+<li>📦 No local system pollution - everything runs in Docker</li>
+<li>🚀 Quick setup - get coding in minutes</li>
+<li>🛠️ Pre-configured with modern development tools</li>
+</ul>
+<h2 id="%F0%9F%91%A5-who-this-is-for">👥 Who This Is For</h2>
+<h3 id="%E2%9C%85-ideal-for">✅ Ideal For</h3>
+<ul>
+<li><strong>Neovim enthusiasts</strong> who want a consistent setup across multiple machines</li>
+<li><strong>Developers</strong> working on different computers (work, home, servers)</li>
+<li><strong>Team leads</strong> who want to standardize development environments</li>
+<li><strong>Students/Learners</strong> exploring modern CLI-based development workflows</li>
+<li><strong>Remote developers</strong> needing quick, reproducible environment setup</li>
+<li><strong>Terminal lovers</strong> who prefer keyboard-driven workflows</li>
+</ul>
+<h3 id="%E2%9A%A0%EF%B8%8F-may-not-be-ideal-for">⚠️ May Not Be Ideal For</h3>
+<ul>
+<li>Beginners completely new to terminal/command-line interfaces</li>
+<li>Developers who prefer GUI-based IDEs (VS Code, IntelliJ, etc.)</li>
+<li>Users who need Windows-native development tools (WSL may help them)</li>
+<li>Teams requiring specific IDE integrations not available in Neovim</li>
+</ul>
+<h3 id="%F0%9F%93%9A-recommended-background">📚 Recommended Background</h3>
+<ul>
+<li>Basic understanding of:
+<ul>
+<li>Command-line navigation (<code>cd</code>, <code>ls</code>, <code>mkdir</code>)</li>
+<li>Text editing concepts (insert mode, normal mode)</li>
+<li>Git basics (clone, commit, push)</li>
+<li>Docker fundamentals (images, containers, docker-compose)</li>
 </ul>
 </li>
+<li>Willingness to learn Neovim keybindings and modal editing</li>
+</ul>
+<h2 id="%E2%9C%A8-features">✨ Features</h2>
+<ul>
+<li><strong>Nerd Fonts</strong>: Patched fonts with icons and glyphs for enhanced terminal aesthetics and better visual feedback in your editor<br>
+Pre-installed fonts are below(Needless to say, you can add more fonts as you like!):
+<ul>
+<li><a href="https://github.com/ryanoasis/nerd-fonts/">JetBrainsMonoNerdFont_v3.0.2</a></li>
+<li><a href="https://github.com/yuru7/moralerspace">MoralerspaceHWJPDOC_v2.0.0</a></li>
+</ul>
+</li>
+<li><strong>Editor</strong>: Pre-installed Neovim with syntax highlighting, autocompletion, and custom keybindings for efficient coding<br>
+See more about Neovim in <a href="https://github.com/neovim/neovim">Repository of Neovim</a>!</li>
+<li><strong>Modern Prompt</strong>: Starship prompt showing git status, language versions, execution time, and more at a glance<br>
+The default configuration is based on <a href="https://starship.rs/ja-JP/presets/gruvbox-rainbow">Gruvbox Rainbow Preset</a><br>
+You can customize as you like in <code>ProjectRoot/dotfiles/starship/starship.toml</code>!<br>
+See more about Starship in <a href="https://github.com/starship/starship">Repository of Starship</a>!</li>
+<li><strong>Terminal Multiplexer</strong>: Tmux for managing multiple terminal sessions, split panes, and persistent sessions that survive disconnections. See more about Tmux in <a href="https://github.com/tmux/tmux">Repository of Tmux</a>!</li>
+</ul>
+<h2 id="%F0%9F%93%8B-prerequisites">📋 Prerequisites</h2>
+<h3 id="required-software">Required Software</h3>
+<ul>
+<li>Docker Engine 29.1.2 or later (<code>stable</code> version recommended)</li>
+<li>Docker Compose v2.40.3 or later (<code>stable</code> version recommended)</li>
+</ul>
+<h3 id="recommended-skills">Recommended Skills</h3>
+<ul>
+<li>Basic familiarity with Docker commands</li>
+<li>Terminal/command-line experience</li>
+<li>A Nerd Font installed on your host system for optimal display</li>
+</ul>
+<h3 id="supported-platforms">Supported Platforms</h3>
+<ul>
+<li>Linux (with Docker Engine)</li>
+<li>macOS 11+ (with Docker Desktop)</li>
+<li>Windows 10/11 (with Docker Desktop)</li>
+</ul>
+<h2 id="%F0%9F%94%A7-installation">🔧 Installation</h2>
+<h3 id="1-install-from-the-repository">1. Install from the Repository</h3>
+<h4 id="case-of-quick-start-no-customization-needed">Case of Quick Start (No Customization Needed)</h4>
+<p>If you just want to use the pre-configured environment without modifications:</p>
+<ol>
+<li>Go to the repository page <a href="https://github.com/Xinor-a/portable-neovim-devbox">https://github.com/Xinor-a/portable-neovim-devbox</a>.</li>
+<li>Click on the green &quot;Code&quot; button and select &quot;Download ZIP&quot;.</li>
+<li>Extract the downloaded ZIP file anywhere you want to locate.</li>
 </ol>
-<h2 id="%E8%A8%AD%E5%AE%9A%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%AE%E6%A4%9C%E8%A8%BC">設定スクリプトの検証</h2>
-<p>このリポジトリの設定スクリプトは、<code>dockerfile</code> に記載された Ubuntu 24.04 のDockerイメージを使用して検証されています。<br>
-dockerfileを使用して、WSL環境と同様の環境を構築し、スクリプトの動作確認を行っています。<br>
-Dockerイメージのビルドと実行手順は以下の通りです。</p>
-<pre class="hljs"><code><div><span class="hljs-built_in">cd</span> MyWslSetting
-
-<span class="hljs-comment"># Dockerイメージのビルド</span>
-docker build -t my-wsl-image .
-
-<span class="hljs-comment"># Dockerコンテナの起動</span>
-docker run -it my-wsl-image
+<h4 id="case-of-customization-or-contribution">Case of Customization or Contribution</h4>
+<p>If you also want to customize configurations or contribute to the project:</p>
+<ol>
+<li>
+<p>Ensure you have Git installed on your machine.</p>
+</li>
+<li>
+<p>Open your terminal and run the following command to clone the repository:</p>
+<pre class="hljs"><code><div>git <span class="hljs-built_in">clone</span> https://github.com/Xinor<span class="hljs-_">-a</span>/portable-neovim-devbox.git
 </div></code></pre>
+<p>or</p>
+<pre class="hljs"><code><div>git <span class="hljs-built_in">clone</span> git@github.com:Xinor<span class="hljs-_">-a</span>/portable-neovim-devbox.git
+</div></code></pre>
+</li>
+<li>
+<p>Navigate into the cloned directory:</p>
+<pre class="hljs"><code><div><span class="hljs-built_in">cd</span> portable-neovim-devbox
+</div></code></pre>
+</li>
+</ol>
+<h3 id="2-building-the-docker-image">2. Building the Docker Image</h3>
+<p>Run the following command in the root directory of the cloned repository:</p>
+<pre class="hljs"><code><div>docker-compose build
+</div></code></pre>
+<h3 id="3-running-the-container">3. Running the Container</h3>
+<p>Start the container for the development environment on background with:</p>
+<pre class="hljs"><code><div>docker-compose up -d
+</div></code></pre>
+<h2 id="%F0%9F%93%96-usage">📖 Usage</h2>
+<h3 id="entering-your-development-environment">Entering Your Development Environment</h3>
+<p>To enter your Neovim development environment, run:</p>
+<pre class="hljs"><code><div>docker-compose <span class="hljs-built_in">exec</span> devbox /bin/bash
+</div></code></pre>
+<p>You can also use SSH to connect if your host has SSH client installed. Use the following command:</p>
+<pre class="hljs"><code><div>ssh root@localhost -p 3000
+</div></code></pre>
+<h2 id="%F0%9F%93%81-project-structure">📁 Project Structure</h2>
+<h3 id="directory-architecture">Directory Architecture</h3>
+<pre class="hljs"><code><div>ProjectRoot
+├── README.md (this file)
+├── dotfiles: Configuration files for any tools in the development environment
+│   ├── git
+│   │   ├── .gitattributes
+│   │   └── .gitconfig
+│   ├── nvim
+│   │   └─ put your neovim config files and plugins here !
+│   ├── starship
+│   │   └── starship.toml: Starship prompt configuration
+│   └── tmux
+│        └── .tmux.conf: Tmux configuration file
+├── docker-compose.yml
+├── dockerfile
+├── scripts: Installation and setup scripts
+│   ├── 1-0_Git
+│   │   └── init.sh
+│   ├── 1-1_OpenSsh
+│   │   └── init.sh
+│   ├── 1-2_Neovim
+│   │   └── init.sh
+│   ├── 1-3_Starship
+│   │   └── init.sh
+│   ├── 1-4_Tmux
+│   │   └── init.sh
+│   ├── entrypoint
+│   │   └── 1-1_OpenSsh
+│   │        └── subentry.sh
+│   │   └── entrypoint.sh
+│   └── init.sh
+└── ssh: SSH server configuration and host keys (mounted: shared with ProjectRoot/ssh/)
+     ├── ssh_host_ecdsa_key
+     ├── ssh_host_ecdsa_key.pub
+     ├── ssh_host_ed25519_key
+     ├── ssh_host_ed25519_key.pub
+     ├── ssh_host_rsa_key
+     ├── ssh_host_rsa_key.pub
+     └── sshd_config
+└── projects: Place to store your projects (mounted: shared with ProjectRoot/projects/)
+</div></code></pre>
+<h3 id="configuration-files">Configuration Files</h3>
+<h4 id="projectrootdotfiles"><code>ProjectRoot/dotfiles/</code></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">File</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>./git/.gitconfig</code></td>
+<td style="text-align:left">Git global configuration</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>./nvim/</code></td>
+<td style="text-align:left">Neovim configuration files and plugins</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>./starship/starship.toml</code></td>
+<td style="text-align:left">Starship prompt configuration</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>./tmux/.tmux.conf</code></td>
+<td style="text-align:left">Tmux configuration file</td>
+</tr>
+</tbody>
+</table>
+<h4 id="projectrootprojects"><code>ProjectRoot/projects/</code></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">File</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>ProjectRoot/ssh/</code></td>
+<td style="text-align:left">SSH server configuration and host keys (mounted volume)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="projectrootscripts"><code>ProjectRoot/scripts/</code></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">File</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>init.sh</code></td>
+<td style="text-align:left">Installation and setup scripts (called from <code>entrypoint.sh</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>1-0_Git/init.sh</code></td>
+<td style="text-align:left">Script to install the latest Git (called from <code>init.sh</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>1-1_OpenSsh/init.sh</code></td>
+<td style="text-align:left">Script to install the latest OpenSSH (called from <code>init.sh</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>1-2_Neovim/init.sh</code></td>
+<td style="text-align:left">Script to install the latest Neovim (called from <code>init.sh</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>1-3_Starship/init.sh</code></td>
+<td style="text-align:left">Script to install the latest Starship (called from <code>init.sh</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>1-4_Tmux/init.sh</code></td>
+<td style="text-align:left">Script to install the latest Tmux (called from <code>init.sh</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>entrypoint/entrypoint.sh</code></td>
+<td style="text-align:left">Entrypoint script</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>entrypoint/1-1_OpenSsh/subentry.sh</code></td>
+<td style="text-align:left">Entrypoint script for OpenSSH (called from <code>entrypoint.sh</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%F0%9F%A4%9D-contributing">🤝 Contributing</h2>
+<p>Contributions are welcome! Please feel free to submit a Pull Request.</p>
+<h2 id="%F0%9F%93%84-license">📄 License</h2>
+<p>This project is licensed under the MIT License. See the <a href="LICENSE">LICENSE</a> file for details.</p>
 
 </body>
 </html>
