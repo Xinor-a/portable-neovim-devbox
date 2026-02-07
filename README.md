@@ -34,25 +34,47 @@ This repository provides a **fully configured Docker container** for a portable 
 ### 📚 Recommended Background
 
 - Basic understanding of:
-    - Command-line navigation (`cd`, `ls`, `mkdir`)
-    - Text editing concepts (insert mode, normal mode)
-    - Git basics (clone, commit, push)
-    - Docker fundamentals (images, containers, docker-compose)
+  - Command-line navigation (`cd`, `ls`, `mkdir`, ...)
+  - Text editing concepts (insert mode, normal mode)
+  - Git basics (clone, commit, push)
+  - Docker fundamentals (images, containers, docker-compose)
 - Willingness to learn Neovim keybindings and modal editing
 
 ## ✨ Features
 
-- **Nerd Fonts**: Patched fonts with icons and glyphs for enhanced terminal aesthetics and better visual feedback in your editor  
-  Pre-installed fonts are below(Needless to say, you can add more fonts as you like!):
-    - [JetBrainsMonoNerdFont_v3.0.2](https://github.com/ryanoasis/nerd-fonts/)
-    - [MoralerspaceHWJPDOC_v2.0.0](https://github.com/yuru7/moralerspace)
-- **Editor**: Pre-installed Neovim with syntax highlighting, autocompletion, and custom keybindings for efficient coding  
-  See more about Neovim in [Repository of Neovim](https://github.com/neovim/neovim)!
-- **Modern Prompt**: Starship prompt showing git status, language versions, execution time, and more at a glance  
-  The default configuration is based on [Gruvbox Rainbow Preset](https://starship.rs/ja-JP/presets/gruvbox-rainbow)  
-  You can customize as you like in `ProjectRoot/dotfiles/starship/starship.toml`!  
-  See more about Starship in [Repository of Starship](https://github.com/starship/starship)!
-- **Terminal Multiplexer**: Tmux for managing multiple terminal sessions, split panes, and persistent sessions that survive disconnections. See more about Tmux in [Repository of Tmux](https://github.com/tmux/tmux)!
+### Neovim (Editor)
+
+Pre-configured Neovim with [lazy.nvim](https://github.com/folke/lazy.nvim) plugin manager and the following plugins:
+
+| Plugin                                                                | Description                            |
+| :-------------------------------------------------------------------- | :------------------------------------- |
+| [catppuccin](https://github.com/catppuccin/nvim)                      | Color scheme                           |
+| [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)            | Language Server Protocol configuration |
+| [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim)          | Status line                            |
+| [neo-tree.nvim](https://github.com/nvim-neo-tree/neo-tree.nvim)       | File explorer                          |
+| [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)    | Fuzzy finder                           |
+| [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | Advanced syntax highlighting           |
+
+See more about Neovim in [Repository of Neovim](https://github.com/neovim/neovim).
+
+### Starship (Modern Prompt)
+
+Starship prompt showing git status, language versions, execution time, and more at a glance.
+The default configuration is based on [Gruvbox Rainbow Preset](https://starship.rs/ja-JP/presets/gruvbox-rainbow).
+You can customize it in `dotfiles/starship/starship.toml`.
+See more about Starship in [Repository of Starship](https://github.com/starship/starship).
+
+#### Nerd Fonts (Recommended)
+
+For optimal display, install a [Nerd Font](https://github.com/ryanoasis/nerd-fonts/) on your **host machine**. Recommended fonts:
+
+- [JetBrains Mono Nerd Font](https://github.com/ryanoasis/nerd-fonts/)
+- [Moralerspace HWJP DOC](https://github.com/yuru7/moralerspace)
+
+### Tmux (Terminal Multiplexer)
+
+Tmux for managing multiple terminal sessions, split panes, and persistent sessions that survive disconnections.
+See more about Tmux in [Repository of Tmux](https://github.com/tmux/tmux).
 
 ## 📋 Prerequisites
 
@@ -61,7 +83,7 @@ This repository provides a **fully configured Docker container** for a portable 
 - Docker Engine 29.1.2 or later (`stable` version recommended)
 - Docker Compose v2.40.3 or later (`stable` version recommended)
 
-### Recommended Skills
+### Recommended
 
 - Basic familiarity with Docker commands
 - Terminal/command-line experience
@@ -77,7 +99,7 @@ This repository provides a **fully configured Docker container** for a portable 
 
 ### 1. Install from the Repository
 
-#### Case of Quick Start (No Customization Needed)
+#### Quick Start (No Customization Needed)
 
 If you just want to use the pre-configured environment without modifications:
 
@@ -85,40 +107,51 @@ If you just want to use the pre-configured environment without modifications:
 2. Click on the green "Code" button and select "Download ZIP".
 3. Extract the downloaded ZIP file anywhere you want to locate.
 
-#### Case of Customization or Contribution
+#### Customization or Contribution
 
 If you also want to customize configurations or contribute to the project:
 
 1. Ensure you have Git installed on your machine.
 2. Open your terminal and run the following command to clone the repository:
 
-    ```bash
-    git clone https://github.com/Xinor-a/portable-neovim-devbox.git
-    ```
-
-    or
-
-    ```bash
-    git clone git@github.com:Xinor-a/portable-neovim-devbox.git
-    ```
+  ```bash
+  git clone https://github.com/Xinor-a/portable-neovim-devbox.git
+  ```
+  
+  or
+  
+  ```bash
+  git clone git@github.com:Xinor-a/portable-neovim-devbox.git
+  ```
 
 3. Navigate into the cloned directory:
 
-    ```bash
-    cd portable-neovim-devbox
-    ```
+  ```bash
+  cd portable-neovim-devbox
+  ```
 
-### 2. Building the Docker Image
+### 2. Configure Environment Variables
 
-Run the following command in the root directory of the cloned repository:
+Edit the `.env` file in the project root to match your setup:
+
+| Variable         | Description                                                     | Default   |
+| :--------------- | :-------------------------------------------------------------- | :-------- |
+| `NEOVIM_VERSION` | Neovim version to install (`"stable"` or a tag like `"v0.9.8"`) | `stable`  |
+| `USER_NAME`      | Main user name inside the container                             | `user`    |
+| `HOST_OS`        | Your host OS (`"Windows"`, `"MacOS"`, or `"Linux"`)             | `Windows` |
+| `HOST_PORT`      | Host port mapped to container SSH (port 22)                     | `3000`    |
+
+### 3. Build the Docker Image
+
+Run the following command in the root directory of the repository:
 
 ```bash
 docker-compose build
 ```
 
-### 3. Running the Container
+### 4. Run the Container
 
-Start the container for the development environment on background with:
+Start the container in the background:
 
 ```bash
 docker-compose up -d
@@ -128,93 +161,142 @@ docker-compose up -d
 
 ### Entering Your Development Environment
 
-To enter your Neovim development environment, run:
+To enter your development environment, run:
 
 ```bash
 docker-compose exec devbox /bin/bash
 ```
 
-You can also use SSH to connect if your host has SSH client installed. Use the following command:
+You can also use SSH if your host has an SSH client installed:
 
 ```bash
 ssh root@localhost -p 3000
 ```
+
+> **Note:** Replace `3000` with the value of `HOST_PORT` if you changed it in `.env`.
 
 ## 📁 Project Structure
 
 ### Directory Architecture
 
 ```plaintext
-ProjectRoot
-├── README.md (this file)
-├── dotfiles: Configuration files for any tools in the development environment
-│   ├── git
-│   │   ├── .gitattributes
-│   │   └── .gitconfig
-│   ├── nvim
-│   │   └─ put your neovim config files and plugins here !
-│   ├── starship
-│   │   └── starship.toml: Starship prompt configuration
-│   └── tmux
-│        └── .tmux.conf: Tmux configuration file
-├── docker-compose.yml
-├── dockerfile
-├── scripts: Installation and setup scripts
-│   ├── 1-0_Git
-│   │   └── init.sh
-│   ├── 1-1_OpenSsh
-│   │   └── init.sh
-│   ├── 1-2_Neovim
-│   │   └── init.sh
-│   ├── 1-3_Starship
-│   │   └── init.sh
-│   ├── 1-4_Tmux
-│   │   └── init.sh
-│   ├── entrypoint
-│   │   └── 1-1_OpenSsh
-│   │        └── subentry.sh
-│   │   └── entrypoint.sh
-│   └── init.sh
-└── ssh: SSH server configuration and host keys (mounted: shared with ProjectRoot/ssh/)
-     ├── ssh_host_ecdsa_key
-     ├── ssh_host_ecdsa_key.pub
-     ├── ssh_host_ed25519_key
-     ├── ssh_host_ed25519_key.pub
-     ├── ssh_host_rsa_key
-     ├── ssh_host_rsa_key.pub
-     └── sshd_config
-└── projects: Place to store your projects (mounted: shared with ProjectRoot/projects/)
+ProjectRoot/
+├── .env                        # Environment variables for Docker build
+├── docker-compose.yml          # Docker Compose service definition
+├── dockerfile                  # Docker image build configuration
+├── LICENSE                     # MIT License
+├── README.md                   # This file
+├── dotfiles/                   # Configuration files for tools in the container
+│   ├── bash.bashrc             # Global bash configuration (aliases, prompt)
+│   ├── git/
+│   │   ├── .gitattributes      # Git attributes
+│   │   └── .gitconfig          # Git global configuration
+│   ├── nvim/                   # Neovim configuration
+│   │   ├── init.lua            # Main Neovim initialization
+│   │   ├── lazy-lock.json      # Plugin version lock file
+│   │   ├── lsp/                # LSP server configurations
+│   │   │   └── lua-ls.lua
+│   │   └── lua/
+│   │       ├── myluamodule.lua
+│   │       └── config/
+│   │           ├── clipboard.lua
+│   │           ├── keymaps.lua
+│   │           ├── lazy.lua    # Lazy plugin manager setup
+│   │           └── plugins/
+│   │               └── define/ # Plugin definitions
+│   │                   ├── catppuccin.lua
+│   │                   ├── lsp-config.lua
+│   │                   ├── lualine.lua
+│   │                   ├── neotree.lua
+│   │                   ├── telescope.lua
+│   │                   └── treesitter.lua
+│   ├── starship/
+│   │   └── starship.toml       # Starship prompt configuration
+│   └── tmux/
+│       └── .tmux.conf          # Tmux configuration
+├── scripts/
+│   ├── init/                   # Build-time installation scripts
+│   │   ├── init.sh             # Main init script (installs dev tools)
+│   │   ├── 1-0_Git/
+│   │   │   └── init.sh
+│   │   ├── 1-1_OpenSsh/
+│   │   │   └── init.sh
+│   │   ├── 1-2_Neovim/
+│   │   │   └── init.sh
+│   │   ├── 1-3_Starship/
+│   │   │   └── init.sh
+│   │   └── 1-4_Tmux/
+│   │       └── init.sh
+│   └── entrypoint/             # Runtime container entry scripts
+│       ├── entrypoint.sh       # Main entrypoint
+│       ├── 1-0_Git/
+│       │   └── subentry.sh
+│       ├── 1-1_OpenSsh/
+│       │   └── subentry.sh
+│       ├── 1-2_Neovim/
+│       │   └── subentry.sh
+│       ├── 1-3_Starship/
+│       │   └── subentry.sh
+│       └── 1-4_Tmux/
+│           └── subentry.sh
+└── ssh/                        # SSH server configuration (mounted volume)
+    ├── sshd_config             # OpenSSH daemon configuration
+    └── (host keys)             # Auto-generated, gitignored
 ```
+
+> **Note:** The `projects/` directory is mounted from `../projects/` (one level above the project root) at runtime.
+> It does not exist in the repository itself.
 
 ### Configuration Files
 
-#### `ProjectRoot/dotfiles/`
+#### `dotfiles/`
 
-| File                       | Description                            |
-| :------------------------- | :------------------------------------- |
-| `./git/.gitconfig`         | Git global configuration               |
-| `./nvim/`                  | Neovim configuration files and plugins |
-| `./starship/starship.toml` | Starship prompt configuration          |
-| `./tmux/.tmux.conf`        | Tmux configuration file                |
+| File                              | Description                                                |
+| :-------------------------------- | :--------------------------------------------------------- |
+| `bash.bashrc`                     | Global bash configuration (aliases, Starship init, locale) |
+| `git/.gitconfig`                  | Git global configuration                                   |
+| `git/.gitattributes`              | Git attributes                                             |
+| `nvim/init.lua`                   | Neovim main initialization file                            |
+| `nvim/lua/config/lazy.lua`        | Lazy.nvim plugin manager setup                             |
+| `nvim/lua/config/keymaps.lua`     | Neovim key mappings                                        |
+| `nvim/lua/config/clipboard.lua`   | Clipboard integration configuration                        |
+| `nvim/lua/config/plugins/define/` | Individual plugin definition files                         |
+| `nvim/lsp/lua-ls.lua`             | Lua Language Server configuration                          |
+| `starship/starship.toml`          | Starship prompt configuration                              |
+| `tmux/.tmux.conf`                 | Tmux configuration                                         |
 
-#### `ProjectRoot/projects/`
+### Scripts
 
-| File               | Description                                             |
-| :----------------- | :------------------------------------------------------ |
-| `ProjectRoot/ssh/` | SSH server configuration and host keys (mounted volume) |
+#### `scripts/init/` (Build-time)
 
-### `ProjectRoot/scripts/`
+| File                   | Description                                               |
+| :--------------------- | :-------------------------------------------------------- |
+| `init.sh`              | Main init script; installs dev tools and runs sub-scripts |
+| `1-0_Git/init.sh`      | Installs the latest Git                                   |
+| `1-1_OpenSsh/init.sh`  | Installs the latest OpenSSH                               |
+| `1-2_Neovim/init.sh`   | Installs Neovim, Node.js, npm, and tree-sitter CLI        |
+| `1-3_Starship/init.sh` | Installs the latest Starship                              |
+| `1-4_Tmux/init.sh`     | Installs the latest Tmux                                  |
 
-| File                                 | Description                                                   |
-| :----------------------------------- | :------------------------------------------------------------ |
-| `init.sh`                            | Installation and setup scripts (called from `entrypoint.sh`)  |
-| `1-0_Git/init.sh`                    | Script to install the latest Git (called from `init.sh`)      |
-| `1-1_OpenSsh/init.sh`                | Script to install the latest OpenSSH (called from `init.sh`)  |
-| `1-2_Neovim/init.sh`                 | Script to install the latest Neovim (called from `init.sh`)   |
-| `1-3_Starship/init.sh`               | Script to install the latest Starship (called from `init.sh`) |
-| `1-4_Tmux/init.sh`                   | Script to install the latest Tmux (called from `init.sh`)     |
-| `entrypoint/entrypoint.sh`           | Entrypoint script                                             |
-| `entrypoint/1-1_OpenSsh/subentry.sh` | Entrypoint script for OpenSSH (called from `entrypoint.sh`)   |
+#### `scripts/entrypoint/` (Runtime)
+
+| File                       | Description                                                     |
+| :------------------------- | :-------------------------------------------------------------- |
+| `entrypoint.sh`            | Main entrypoint; sets up bash, permissions, and starts services |
+| `1-0_Git/subentry.sh`      | Git runtime configuration                                       |
+| `1-1_OpenSsh/subentry.sh`  | SSH server startup                                              |
+| `1-2_Neovim/subentry.sh`   | Neovim runtime setup                                            |
+| `1-3_Starship/subentry.sh` | Starship runtime setup                                          |
+| `1-4_Tmux/subentry.sh`     | Tmux runtime setup                                              |
+
+### Docker Volumes
+
+| Volume             | Description                       |
+| :----------------- | :-------------------------------- |
+| `root-dotssh`      | Root user SSH configuration       |
+| `user-dotssh`      | Container user SSH configuration  |
+| `root-nvim-plugin` | Root user Neovim plugin data      |
+| `user-nvim-plugin` | Container user Neovim plugin data |
 
 ## 🤝 Contributing
 
