@@ -7,3 +7,5 @@
 # ignore all files in ssh/ except sshd_config
 ssh/*
 !ssh/sshd_config
+
+*README.html
