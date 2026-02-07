@@ -6,7 +6,14 @@ services:
                 NEOVIM_VERSION: "${NEOVIM_VERSION:-stable}"
                 USER_NAME: "${USER_NAME:-user}"
                 HOST_OS: "${HOST_OS:-Windows}"
+                HTTP_PROXY: "${HTTP_PROXY:-}"
+                HTTPS_PROXY: "${HTTPS_PROXY:-}"
+                NO_PROXY: "${NO_PROXY:-}"
             dockerfile: dockerfile
+        environment:
+            - HTTP_PROXY=${HTTP_PROXY:-}
+            - HTTPS_PROXY=${HTTPS_PROXY:-}
+            - NO_PROXY=${NO_PROXY:-}
         volumes:
             - ./:/etc/devbox/
             - ./ssh/:/etc/ssh/
