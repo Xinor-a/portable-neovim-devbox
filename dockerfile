@@ -9,7 +9,9 @@ RUN apt-get update \
         gosu \
         sudo
 
-# Create user
+################################################################################
+# User settings
+
 ARG USER_NAME
 ENV USER_NAME=$USER_NAME
 ARG USER_ID=1001
@@ -17,40 +19,43 @@ ARG USER_ID=1001
 ENV GROUP_ID=1010
 ENV GROUP_NAME="g-devbox"
 
-RUN groupadd --gid $USER_ID $USER_NAME \
-&& useradd --uid $USER_ID --gid $USER_ID -m -s /bin/bash $USER_NAME \
+RUN groupadd --gid ${USER_ID} ${USER_NAME} \
+&& useradd --uid ${USER_ID} --gid ${USER_ID} -m -s /bin/bash ${USER_NAME} \
+&& echo ${USER_NAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USER_NAME} \
+&& chmod 0440 /etc/sudoers.d/${USER_NAME} \
+&& echo 'root:root' | chpasswd \
 && echo "${USER_NAME}:${USER_NAME}" | chpasswd \
-&& echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
-&& chmod 0440 /etc/sudoers.d/$USER_NAME
+&& groupadd --gid ${GROUP_ID} ${GROUP_NAME} \
+&& usermod -aG ${GROUP_NAME} root \
+&& usermod -aG ${GROUP_NAME} ${USER_NAME}
 
-RUN groupadd --gid $GROUP_ID $GROUP_NAME \
-&& usermod -aG $GROUP_NAME root \
-&& usermod -aG $GROUP_NAME $USER_NAME
+################################################################################
+# Create necessary directories for build
 
-# Set password for root user
-RUN echo 'root:root' | chpasswd
-
-# Expose SSH port
-EXPOSE 22
-
-# Create necessary directories for the volume mount (ssh)
-RUN mkdir -p /etc/ssh/
-COPY ssh/ /etc/ssh/
-
-# Create necessary directories for the volume mount (devbox)
-RUN mkdir -p /etc/devbox/ \
-    && chmod 777 /etc/devbox/
-COPY ./ /etc/devbox/
+# init
+RUN mkdir -p /tmp/init/
+COPY ./scripts/init/ /tmp/init/
 
 # Software Neovim
 ARG NEOVIM_VERSION
 
+################################################################################
 # Run initialization script
-RUN chmod 777 /etc/devbox/scripts/init.sh
+RUN chmod 777 /tmp/init/init.sh
 RUN mkdir -p /var/log && chmod 777 /var/log
 
-RUN /etc/devbox/scripts/init.sh 2>&1 | tee /var/log/init.log
+RUN /tmp/init/init.sh 2>&1 | tee /var/log/init.log
 
+# Clean up
+RUN rm -rf /tmp/init/
+
+################################################################################
+# SSH Setup
+
+# Expose SSH port
+EXPOSE 22
+
+################################################################################
 # Validate HOST_OS argument
 ARG HOST_OS
 
@@ -65,7 +70,17 @@ RUN \
 
 ENV HOST_OS=$HOST_OS
 
+################################################################################
+# Entrypoint setup
+
+RUN mkdir -p /etc/devbox/scripts/entrypoint/
+
+COPY ./scripts/entrypoint/ /etc/devbox/scripts/entrypoint/
+
 RUN chmod 777 /etc/devbox/scripts/entrypoint/entrypoint.sh
+
+################################################################################
+# Set default entrypoint and command
 
 ENTRYPOINT ["/etc/devbox/scripts/entrypoint/entrypoint.sh"]
 

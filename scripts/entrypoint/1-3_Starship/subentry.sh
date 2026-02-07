@@ -4,35 +4,12 @@ log_info "Started Starship setup..."
 log_output ""
 
 ################################################################################
-# Install latest starship Tokyo Night theme
-
-log_status "Started Starship installation..."
-
-if ! curl -sS https://starship.rs/install.sh | sh -s -- -y; then
-    log_error "Failed to install Starship"
-    exit 1
-fi
-
-log_status "Completed."
-log_output ""
-
-################################################################################
 # Set permissions for starship configuration
 
 log_status "Started setting permissions for Starship configuration..."
 
-if ! chown -R :${GROUP_NAME} /etc/devbox/dotfiles/starship/; then
-    log_error "Failed to change group ownership of /etc/devbox/dotfiles/starship/"
-    exit 1
-fi
-if ! chmod g+x /etc/devbox/dotfiles/starship/; then
-    log_error "Failed to set execute permission on /etc/devbox/dotfiles/starship/"
-    exit 1
-fi
-if ! chmod -R g+rw /etc/devbox/dotfiles/starship/; then
-    log_error "Failed to set read/write permissions on /etc/devbox/dotfiles/starship/"
-    exit 1
-fi
+mkdir -p /etc/devbox/dotfiles/starship/
+set_group_permissions /etc/devbox/dotfiles/starship/
 
 log_status "Completed."
 log_output ""
@@ -65,6 +42,8 @@ log_output ""
 
 ################################################################################
 # Set some environment variables for starship prompt
+
+log_status "Started setting environment variables for Starship prompt..."
 
 if ! grep -q "export TERM=xterm-256color" /etc/bash.bashrc; then
     echo "export TERM=xterm-256color" >> /etc/bash.bashrc
