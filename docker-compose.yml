@@ -10,7 +10,7 @@ services:
         volumes:
             - ./:/etc/devbox/
             - ./ssh/:/etc/ssh/
-            - ../projects/:/home/${USER_NAME}/projects
+            - ${PROJECTS_DIR:-../projects}:/home/${USER_NAME}/projects
             - root-dotssh:/root/.ssh
             - user-dotssh:/home/${USER_NAME}/.ssh
             - root-nvim-plugin:/root/.local/share/nvim

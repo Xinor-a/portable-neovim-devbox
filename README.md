@@ -134,12 +134,13 @@ If you also want to customize configurations or contribute to the project:
 
 Edit the `.env` file in the project root to match your setup:
 
-| Variable         | Description                                                     | Default   |
-| :--------------- | :-------------------------------------------------------------- | :-------- |
-| `NEOVIM_VERSION` | Neovim version to install (`"stable"` or a tag like `"v0.9.8"`) | `stable`  |
-| `USER_NAME`      | Main user name inside the container                             | `user`    |
-| `HOST_OS`        | Your host OS (`"Windows"`, `"MacOS"`, or `"Linux"`)             | `Windows` |
-| `HOST_PORT`      | Host port mapped to container SSH (port 22)                     | `3000`    |
+| Variable         | Description                                                     | Default      |
+| :--------------- | :-------------------------------------------------------------- | :----------- |
+| `NEOVIM_VERSION` | Neovim version to install (`"stable"` or a tag like `"v0.9.8"`) | `stable`     |
+| `USER_NAME`      | Main user name inside the container                             | `user`       |
+| `HOST_OS`        | Your host OS (`"Windows"`, `"MacOS"`, or `"Linux"`)             | `Windows`    |
+| `HOST_PORT`      | Host port mapped to container SSH (port 22)                     | `3000`       |
+| `PROJECTS_DIR`   | Host directory to mount as the projects workspace               | `../projects`|
 
 ### 3. Build the Docker Image
 
@@ -171,6 +172,7 @@ You can also use SSH if your host has an SSH client installed:
 
 ```bash
 ssh root@localhost -p 3000
+ssh user@localhost -p 3000
 ```
 
 > **Note:** Replace `3000` with the value of `HOST_PORT` if you changed it in `.env`.
@@ -244,8 +246,12 @@ ProjectRoot/
     └── (host keys)             # Auto-generated, gitignored
 ```
 
-> **Note:** The `projects/` directory is mounted from `../projects/` (one level above the project root) at runtime.
-> It does not exist in the repository itself.
+> **Note:** The projects directory is mounted from the path specified by `PROJECTS_DIR` (default: `../projects/`, one level above the project root) at runtime. It does not exist in the repository itself.
+> You can change the mount source by setting `PROJECTS_DIR` in `.env` or at startup:
+>
+> ```bash
+> PROJECTS_DIR=/path/to/your/projects docker compose up -d
+> ```
 
 ### Configuration Files
 
@@ -297,6 +303,26 @@ ProjectRoot/
 | `user-dotssh`      | Container user SSH configuration  |
 | `root-nvim-plugin` | Root user Neovim plugin data      |
 | `user-nvim-plugin` | Container user Neovim plugin data |
+
+## 🐳 Using the Image from Another Directory
+
+Once you have built the image with `docker compose build`, you can add an `image` name in `docker-compose.yml` to reuse it from anywhere:
+
+```yaml
+services:
+    devbox:
+        build:
+            ...
+        image: devbox
+```
+
+After building, the image is tagged as `devbox:latest`. You can start a container from anywhere with `docker run`:
+
+```bash
+docker run -d devbox -v /path/to/your/projects:/home/user/projects -p 3000:22
+```
+
+This allows you to spin up devbox containers anywhere without rebuilding or creating additional compose files.
 
 ## 🤝 Contributing
 
