@@ -4,13 +4,13 @@ log_info "Started OpenSsh setup..."
 log_output ""
 
 ################################################################################
-# Install latest OpenSsh Server
+# Install latest OpenSsh Client
 
-log_status "Started OpenSsh Server installation..."
+log_status "Started OpenSsh Client installation..."
 
 if ! apt-get update \
-|| ! apt-get install -y --no-install-recommends openssh-server; then
-    log_error "Failed to install OpenSsh Server"
+|| ! apt-get install -y --no-install-recommends openssh-client; then
+    log_error "Failed to install OpenSsh Client"
     exit 1
 fi
 

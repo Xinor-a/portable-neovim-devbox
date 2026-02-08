@@ -52,14 +52,11 @@ RUN rm -rf /tmp/init/
 ################################################################################
 # SSH Setup
 
-# Expose SSH port
-EXPOSE 22
-
 ################################################################################
 # Validate HOST_OS argument
 ARG HOST_OS
 
-# Add os name to enviro variable
+# Add os name to environment variable
 RUN \
     if [ ! "$HOST_OS" = "Windows" ] \
     && [ ! "$HOST_OS" = "MacOS" ] \

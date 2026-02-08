@@ -17,13 +17,10 @@ services:
             - NO_PROXY=${NO_PROXY:-}
         volumes:
             - devbox-data:/etc/devbox/
-            - ./ssh/:/etc/ssh/
             - root-dotssh:/root/.ssh
             - user-dotssh:/home/${USER_NAME}/.ssh
             - root-nvim-plugin:/root/.local/share/nvim
             - user-nvim-plugin:/home/${USER_NAME}/.local/share/nvim
-        ports:
-            - "${HOST_PORT:-3000}:22"
         tty: true
 
 volumes:

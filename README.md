@@ -139,7 +139,6 @@ Edit the `.env` file in the project root to match your setup:
 | `NEOVIM_VERSION` | Neovim version to install (`"stable"` or a tag like `"v0.9.8"`) | `stable`       |
 | `USER_NAME`      | Main user name inside the container                             | `user`         |
 | `HOST_OS`        | Your host OS (`"Windows"`, `"MacOS"`, or `"Linux"`)             | `Windows`      |
-| `HOST_PORT`      | Host port mapped to container SSH (port 22)                     | `3000`         |
 
 #### 5.2.1. Proxy Settings (Optional)
 
@@ -184,15 +183,6 @@ To enter your development environment, run:
 docker-compose exec devbox /bin/bash
 ```
 
-You can also use SSH if your host has an SSH client installed:
-
-```bash
-ssh root@localhost -p 3000
-ssh user@localhost -p 3000
-```
-
-> **Note:** Replace `3000` with the value of `HOST_PORT` if you changed it in `.env`.
-
 ## 7. 📁 Project Structure
 
 ### 7.1. Directory Architecture
@@ -205,7 +195,6 @@ ProjectRoot/
 ├── LICENSE                     # MIT License
 ├── README.md                   # This file
 ├── dotfiles/                   # Configuration files for tools in the container
-│   ├── bash.bashrc             # Global bash configuration (aliases, prompt)
 │   ├── git/
 │   │   ├── .gitattributes      # Git attributes
 │   │   └── .gitconfig          # Git global configuration
@@ -232,34 +221,31 @@ ProjectRoot/
 │   │   └── starship.toml       # Starship prompt configuration
 │   └── tmux/
 │       └── .tmux.conf          # Tmux configuration
-├── scripts/
-│   ├── init/                   # Build-time installation scripts
-│   │   ├── init.sh             # Main init script (installs dev tools)
-│   │   ├── 1-0_Git/
-│   │   │   └── init.sh
-│   │   ├── 1-1_OpenSsh/
-│   │   │   └── init.sh
-│   │   ├── 1-2_Neovim/
-│   │   │   └── init.sh
-│   │   ├── 1-3_Starship/
-│   │   │   └── init.sh
-│   │   └── 1-4_Tmux/
-│   │       └── init.sh
-│   └── entrypoint/             # Runtime container entry scripts
-│       ├── entrypoint.sh       # Main entrypoint
-│       ├── 1-0_Git/
-│       │   └── subentry.sh
-│       ├── 1-1_OpenSsh/
-│       │   └── subentry.sh
-│       ├── 1-2_Neovim/
-│       │   └── subentry.sh
-│       ├── 1-3_Starship/
-│       │   └── subentry.sh
-│       └── 1-4_Tmux/
-│           └── subentry.sh
-└── ssh/                        # SSH server configuration (mounted volume)
-    ├── sshd_config             # OpenSSH daemon configuration
-    └── (host keys)             # Auto-generated, gitignored
+└── scripts/
+     ├── init/                   # Build-time installation scripts
+     │   ├── init.sh             # Main init script (installs dev tools)
+     │   ├── 1-0_Git/
+     │   │   └── init.sh
+     │   ├── 1-1_OpenSsh/
+     │   │   └── init.sh
+     │   ├── 1-2_Neovim/
+     │   │   └── init.sh
+     │   ├── 1-3_Starship/
+     │   │   └── init.sh
+     │   └── 1-4_Tmux/
+     │       └── init.sh
+     └── entrypoint/             # Runtime container entry scripts
+         ├── entrypoint.sh       # Main entrypoint
+         ├── 1-0_Git/
+         │   └── subentry.sh
+         ├── 1-1_OpenSsh/
+         │   └── subentry.sh
+         ├── 1-2_Neovim/
+         │   └── subentry.sh
+         ├── 1-3_Starship/
+         │   └── subentry.sh
+         └── 1-4_Tmux/
+             └── subentry.sh
 ```
 
 ### 7.2. Configuration Files
@@ -288,7 +274,7 @@ ProjectRoot/
 | :--------------------- | :-------------------------------------------------------- |
 | `init.sh`              | Main init script; installs dev tools and runs sub-scripts |
 | `1-0_Git/init.sh`      | Installs the latest Git                                   |
-| `1-1_OpenSsh/init.sh`  | Installs the latest OpenSSH                               |
+| `1-1_OpenSsh/init.sh`  | Installs the OpenSSH client                               |
 | `1-2_Neovim/init.sh`   | Installs Neovim, Node.js, npm, and tree-sitter CLI        |
 | `1-3_Starship/init.sh` | Installs the latest Starship                              |
 | `1-4_Tmux/init.sh`     | Installs the latest Tmux                                  |
@@ -299,7 +285,7 @@ ProjectRoot/
 | :------------------------- | :-------------------------------------------------------------- |
 | `entrypoint.sh`            | Main entrypoint; sets up bash, permissions, and starts services |
 | `1-0_Git/subentry.sh`      | Git runtime configuration                                       |
-| `1-1_OpenSsh/subentry.sh`  | SSH server startup                                              |
+| `1-1_OpenSsh/subentry.sh`  | OpenSSH client runtime setup                                    |
 | `1-2_Neovim/subentry.sh`   | Neovim runtime setup                                            |
 | `1-3_Starship/subentry.sh` | Starship runtime setup                                          |
 | `1-4_Tmux/subentry.sh`     | Tmux runtime setup                                              |
@@ -328,7 +314,7 @@ services:
 After building, the image is tagged as `devbox:latest`. You can start a container from anywhere with `docker run`:
 
 ```bash
-docker run -d devbox -v /path/to/your/projects:/home/user/projects -p 3000:22
+docker run -d devbox -v /path/to/your/projects:/home/user/projects
 ```
 
 This allows you to spin up devbox containers anywhere without rebuilding or creating additional compose files.
