@@ -140,7 +140,6 @@ Edit the `.env` file in the project root to match your setup:
 | `USER_NAME`      | Main user name inside the container                             | `user`         |
 | `HOST_OS`        | Your host OS (`"Windows"`, `"MacOS"`, or `"Linux"`)             | `Windows`      |
 | `HOST_PORT`      | Host port mapped to container SSH (port 22)                     | `3000`         |
-| `PROJECTS_DIR`   | Host directory to mount as the projects workspace               | `../projects`  |
 
 #### 5.2.1. Proxy Settings (Optional)
 
@@ -262,13 +261,6 @@ ProjectRoot/
     ├── sshd_config             # OpenSSH daemon configuration
     └── (host keys)             # Auto-generated, gitignored
 ```
-
-> **Note:** The projects directory is mounted from the path specified by `PROJECTS_DIR` (default: `../projects/`, one level above the project root) at runtime. It does not exist in the repository itself.
-> You can change the mount source by setting `PROJECTS_DIR` in `.env` or at startup:
->
-> ```bash
-> PROJECTS_DIR=/path/to/your/projects docker compose up -d
-> ```
 
 ### 7.2. Configuration Files
 
