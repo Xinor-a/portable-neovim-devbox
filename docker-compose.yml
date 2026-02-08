@@ -16,7 +16,7 @@ services:
             - HTTPS_PROXY=${HTTPS_PROXY:-}
             - NO_PROXY=${NO_PROXY:-}
         volumes:
-            - ./:/etc/devbox/
+            - devbox-data:/etc/devbox/
             - ./ssh/:/etc/ssh/
             - root-dotssh:/root/.ssh
             - user-dotssh:/home/${USER_NAME}/.ssh
@@ -27,6 +27,7 @@ services:
         tty: true
 
 volumes:
+    devbox-data:
     root-dotssh:
     user-dotssh:
     root-nvim-plugin:
