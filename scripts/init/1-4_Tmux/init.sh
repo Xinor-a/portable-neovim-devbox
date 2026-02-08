@@ -9,7 +9,7 @@ log_output ""
 log_status "Started Tmux installation..."
 
 if ! apt-get update \
-&& apt-get install -y tmux; then
+|| ! apt-get install -y tmux; then
     log_error "Failed to install Tmux"
     exit 1
 fi
