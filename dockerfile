@@ -84,4 +84,4 @@ RUN chmod 777 /etc/devbox/scripts/entrypoint/entrypoint.sh
 
 ENTRYPOINT ["/etc/devbox/scripts/entrypoint/entrypoint.sh"]
 
-CMD ["tail", "-f", "/dev/null"]
+CMD ["/bin/bash"]
