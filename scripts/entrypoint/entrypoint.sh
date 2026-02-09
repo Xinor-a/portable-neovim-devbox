@@ -173,8 +173,8 @@ log_output "========================================"
 log_info "Completed entrypoint script."
 log_output "========================================"
 
-
 ################################################################################
 # Final execution
 
+cd /home/$USER_NAME/
 exec gosu $USER_NAME "$@"
