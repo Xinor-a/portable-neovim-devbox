@@ -80,6 +80,25 @@ log_info "Started entrypoint script."
 log_output ""
 
 ################################################################################
+# User settings
+
+log_output "========================================"
+log_info "Started user setup..."
+log_output ""
+
+if [ -n "$USER_ID" ]; then
+    usermod -u "$USER_ID" "$USER_NAME"
+    log_info "Set UID for user $USER_NAME to $USER_ID"
+fi
+if [ -n "$GROUP_ID" ]; then
+    groupmod -g "$GROUP_ID" "$GROUP_NAME"
+    log_info "Set GID for group $GROUP_NAME to $GROUP_ID"
+fi
+
+log_info "Completed user setup for user: ${USER_NAME} (UID: ${USER_ID}, GID: ${GROUP_ID})"
+log_output ""
+
+################################################################################
 # Backup and symlink /etc/bash.bashrc
 
 log_status "Started backing up and symlinking /etc/bash.bashrc..."

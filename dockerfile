@@ -14,18 +14,16 @@ RUN apt-get update \
 
 ARG USER_NAME
 ENV USER_NAME=$USER_NAME
-ARG USER_ID=1001
 
-ENV GROUP_ID=1010
 ENV GROUP_NAME="g-devbox"
 
-RUN groupadd --gid ${USER_ID} ${USER_NAME} \
-&& useradd --uid ${USER_ID} --gid ${USER_ID} -m -s /bin/bash ${USER_NAME} \
+RUN groupadd --gid 1001 ${USER_NAME} \
+&& useradd --uid 1001 --gid 1001 -m -s /bin/bash ${USER_NAME} \
 && echo ${USER_NAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USER_NAME} \
 && chmod 0440 /etc/sudoers.d/${USER_NAME} \
 && echo 'root:root' | chpasswd \
 && echo "${USER_NAME}:${USER_NAME}" | chpasswd \
-&& groupadd --gid ${GROUP_ID} ${GROUP_NAME} \
+&& groupadd --gid 1010 ${GROUP_NAME} \
 && usermod -aG ${GROUP_NAME} root \
 && usermod -aG ${GROUP_NAME} ${USER_NAME}
 
@@ -58,12 +56,12 @@ ARG HOST_OS
 
 # Add os name to environment variable
 RUN \
-    if [ ! "$HOST_OS" = "Windows" ] \
-    && [ ! "$HOST_OS" = "MacOS" ] \
-    && [ ! "$HOST_OS" = "Linux" ] ; then \
-    echo "Unsupported HOST_OS: $HOST_OS. Supported values are Windows, MacOS, Linux." >&2; \
-    exit 1; \
-    fi
+if [ ! "$HOST_OS" = "Windows" ] \
+&& [ ! "$HOST_OS" = "MacOS" ] \
+&& [ ! "$HOST_OS" = "Linux" ] ; then \
+echo "Unsupported HOST_OS: $HOST_OS. Supported values are Windows, MacOS, Linux." >&2; \
+exit 1; \
+fi
 
 ENV HOST_OS=$HOST_OS
 
