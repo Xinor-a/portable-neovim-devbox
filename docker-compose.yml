@@ -17,6 +17,9 @@ services:
             - HTTP_PROXY=${HTTP_PROXY:-}
             - HTTPS_PROXY=${HTTPS_PROXY:-}
             - NO_PROXY=${NO_PROXY:-}
+        tty: true
+    devbox-storage:
+        image: busybox
         volumes:
             - devbox-data:/etc/devbox/
             - root-dotssh:/root/.ssh
@@ -24,7 +27,6 @@ services:
             - nvim-plugin-cache:/etc/nvim/lazy/
             - root-nvim-plugin:/root/.local/share/nvim
             - user-nvim-plugin:/home/${USER_NAME}/.local/share/nvim
-        tty: true
 
 volumes:
     devbox-data:

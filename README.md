@@ -132,13 +132,18 @@ If you also want to customize configurations or contribute to the project:
 
 ### 5.2. Configure Environment Variables
 
-Edit the `.env` file in the project root to match your setup:
+Edit the `.env` file in the project root to match your setup. This file is used in two ways:
 
-| Variable         | Description                                                     | Default        |
-| :--------------- | :-------------------------------------------------------------- | :------------- |
-| `NEOVIM_VERSION` | Neovim version to install (`"stable"` or a tag like `"v0.9.8"`) | `stable`       |
-| `USER_NAME`      | Main user name inside the container                             | `user`         |
-| `HOST_OS`        | Your host OS (`"Windows"`, `"MacOS"`, or `"Linux"`)             | `Windows`      |
+- **Build time** — `docker compose build` reads `.env` automatically and passes the values as build arguments. `NEOVIM_VERSION`, `USER_NAME`, `HOST_OS` are baked into the image at this stage.
+- **Runtime** — `USER_ID` and `GROUP_ID` can be overridden with `-e` when running `docker run` to match your host user. This is only needed on **Linux** where bind-mounted file ownership must match the host. On **Windows** and **macOS**, Docker Desktop handles file permissions through its VM layer, so these options can be omitted.
+
+| Variable         | Description                                                     | Default   |
+| :--------------- | :-------------------------------------------------------------- | :-------- |
+| `NEOVIM_VERSION` | Neovim version to install (`"stable"` or a tag like `"v0.9.8"`) | `stable`  |
+| `USER_NAME`      | Main user name inside the container                             | `user`    |
+| `USER_ID`        | UID for the container user (matched to host for file ownership) | `1001`    |
+| `GROUP_ID`       | GID for the shared group inside the container                   | `1010`    |
+| `HOST_OS`        | Your host OS (`"Windows"`, `"MacOS"`, or `"Linux"`)             | `Windows` |
 
 #### 5.2.1. Proxy Settings (Optional)
 
@@ -165,22 +170,52 @@ Run the following command in the root directory of the repository:
 docker-compose build
 ```
 
-### 5.4. Run the Container
+### 5.4. Set Up and Run the Container
 
-Start the container in the background:
+#### 5.4.1. Create the Storage Container
+
+Create the data-only container that manages persistent volumes:
 
 ```bash
-docker-compose up -d
+docker compose create devbox-storage
 ```
+
+This container holds all shared volumes (SSH keys, Neovim plugins, configuration data). It does not run — it only provides named volumes for the devbox container.
+
+#### 5.4.2. Launch the DevBox Container
+
+Start a devbox container with access to the shared volumes and your project directory:
+
+```bash
+docker run --rm -it \
+    -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
+    --volumes-from "$(docker compose ps -aq devbox-storage)" \
+    -v /path/to/project:/home/user/project \
+    devbox:latest
+```
+
+Replace `/path/to/project` with the absolute path to your project directory.
 
 ## 6. 📖 Usage
 
 ### 6.1. Entering Your Development Environment
 
-To enter your development environment, run:
+Start a new devbox container with the shared volumes and your project mounted:
 
 ```bash
-docker-compose exec devbox /bin/bash
+docker run --rm -it \
+    -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
+    --volumes-from "$(docker compose ps -aq devbox-storage)" \
+    -v /path/to/project:/home/user/project \
+    devbox:latest
+```
+
+Replace `/path/to/project` with the absolute path to the project you want to work on. The `--rm` flag removes the container on exit; persistent data is stored in the `devbox-storage` volumes.
+
+To attach to an already running devbox container:
+
+```bash
+docker exec -it <container-id> /bin/bash
 ```
 
 ## 7. 📁 Project Structure
@@ -254,7 +289,6 @@ ProjectRoot/
 
 | File                              | Description                                                |
 | :-------------------------------- | :--------------------------------------------------------- |
-| `bash.bashrc`                     | Global bash configuration (aliases, Starship init, locale) |
 | `git/.gitconfig`                  | Git global configuration                                   |
 | `git/.gitattributes`              | Git attributes                                             |
 | `nvim/init.lua`                   | Neovim main initialization file                            |
@@ -292,32 +326,36 @@ ProjectRoot/
 
 ### 7.4. Docker Volumes
 
-| Volume             | Description                       |
-| :----------------- | :-------------------------------- |
-| `root-dotssh`      | Root user SSH configuration       |
-| `user-dotssh`      | Container user SSH configuration  |
-| `root-nvim-plugin` | Root user Neovim plugin data      |
-| `user-nvim-plugin` | Container user Neovim plugin data |
+All volumes are managed by the `devbox-storage` data-only container and shared with devbox containers via `--volumes-from`.
+
+| Volume              | Mount Path                       | Description                       |
+| :------------------ | :------------------------------- | :-------------------------------- |
+| `devbox-data`       | `/etc/devbox/`                   | DevBox configuration data         |
+| `root-dotssh`       | `/root/.ssh`                     | Root user SSH configuration       |
+| `user-dotssh`       | `/home/<user>/.ssh`              | Container user SSH configuration  |
+| `nvim-plugin-cache` | `/etc/nvim/lazy/`                | Neovim plugin cache (lazy.nvim)   |
+| `root-nvim-plugin`  | `/root/.local/share/nvim`        | Root user Neovim plugin data      |
+| `user-nvim-plugin`  | `/home/<user>/.local/share/nvim` | Container user Neovim plugin data |
 
 ## 8. 🐳 Using the Image from Another Directory
 
-Once you have built the image with `docker compose build`, you can add an `image` name in `docker-compose.yml` to reuse it from anywhere:
-
-```yaml
-services:
-    devbox:
-        build:
-            ...
-        image: devbox
-```
-
-After building, the image is tagged as `devbox:latest`. You can start a container from anywhere with `docker run`:
+Once you have built the image with `docker compose build`, it is tagged as `devbox:latest`. You can start a devbox container from any directory by referencing the storage container:
 
 ```bash
-docker run -d devbox -v /path/to/your/projects:/home/user/projects
+docker run --rm -it \
+    -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
+    --volumes-from <devbox-storage-container> \
+    -v /path/to/project:/home/user/project \
+    devbox:latest
 ```
 
-This allows you to spin up devbox containers anywhere without rebuilding or creating additional compose files.
+Replace `<devbox-storage-container>` with the name or ID of your devbox-storage container. You can find it with:
+
+```bash
+docker ps -a --filter "ancestor=busybox" --format "{{.Names}}"
+```
+
+This allows you to spin up devbox containers anywhere without rebuilding or creating additional compose files, while sharing persistent data through the `devbox-storage` volumes.
 
 ## 9. 🤝 Contributing
 
