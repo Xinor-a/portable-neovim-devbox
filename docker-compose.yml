@@ -1,20 +1,41 @@
 services:
-  devbox:
-    build:
-      context: .
-      dockerfile: dockerfile
-    volumes:
-      - ./devenv/:/etc/devenv
-      - ./ssh/:/etc/ssh/
-      - ./projects/:/root/projects
-      - root-dotssh:/root/.ssh
-      - nvim-plugin:/root/.local/share/nvim
-      - nvim-cache:/root/.cache/nvim
-    ports:
-      - "${HOST_PORT:-3000}:22"
-    tty: true
+    devbox:
+        build:
+            context: .
+            args:
+                NEOVIM_VERSION: "${NEOVIM_VERSION:-stable}"
+                USER_NAME: "${USER_NAME:-user}"
+                USER_ID: "${USER_ID:-1001}"
+                GROUP_ID: "${GROUP_ID:-1010}"
+                HOST_OS: "${HOST_OS:-Windows}"
+                HTTP_PROXY: "${HTTP_PROXY:-}"
+                HTTPS_PROXY: "${HTTPS_PROXY:-}"
+                NO_PROXY: "${NO_PROXY:-}"
+            dockerfile: dockerfile
+        image: devbox:latest
+        environment:
+            - HTTP_PROXY=${HTTP_PROXY:-}
+            - HTTPS_PROXY=${HTTPS_PROXY:-}
+            - NO_PROXY=${NO_PROXY:-}
+        tty: true
+    devbox-storage:
+        build:
+            context: .
+            dockerfile: storage.dockerfile
+        image: devbox-storage:latest
+        container_name: devbox-storage-master
+        volumes:
+            - devbox-data:/etc/devbox/
+            - root-dotssh:/root/.ssh
+            - user-dotssh:/home/${USER_NAME}/.ssh
+            - nvim-plugin-cache:/etc/nvim/lazy/
+            - root-nvim-plugin:/root/.local/share/nvim
+            - user-nvim-plugin:/home/${USER_NAME}/.local/share/nvim
 
 volumes:
-  root-dotssh:
-  nvim-plugin:
-  nvim-cache:
+    devbox-data:
+    root-dotssh:
+    user-dotssh:
+    nvim-plugin-cache:
+    root-nvim-plugin:
+    user-nvim-plugin:

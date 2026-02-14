@@ -1,9 +1,11 @@
+# avoid other git repositories in subdirectories
 *.git/
 
-scripts/projects/*
-!scripts/projects/README.md
+# ignore all files in projects/
+*projects/*
 
+# ignore all files in ssh/ except sshd_config
 ssh/*
-!ssh/ssh_config
+!ssh/sshd_config
 
-devenv/bash.bashrc
+*README.html

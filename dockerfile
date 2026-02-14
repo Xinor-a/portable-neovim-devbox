@@ -1,37 +1,73 @@
 FROM ubuntu:24.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install sudo
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y \
+        gosu \
         sudo
 
-# Set timezone to Asia/Tokyo
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Tokyo
+################################################################################
+# User settings
 
-# Copy initialization scripts and set permissions
-RUN mkdir -p /tmp/scripts
-COPY scripts /tmp/scripts
-RUN chmod 777 /tmp/scripts/init.sh
+ARG USER_NAME
+ENV USER_NAME=$USER_NAME
 
-# Create necessary directories for the volume mount (devenv)
-RUN mkdir -p /etc/devenv/
-RUN chmod 777 /etc/devenv/
-COPY devenv/ /etc/devenv/
+ENV GROUP_NAME="g-devbox"
 
-# Create necessary directories for the volume mount (ssh) and set permissions
-RUN mkdir -p /etc/ssh/
-RUN chmod 777 /etc/ssh/
+RUN groupadd --gid 1001 ${USER_NAME} \
+&& useradd --uid 1001 --gid 1001 -m -s /bin/bash ${USER_NAME} \
+&& echo ${USER_NAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USER_NAME} \
+&& chmod 0440 /etc/sudoers.d/${USER_NAME} \
+&& echo 'root:root' | chpasswd \
+&& echo "${USER_NAME}:${USER_NAME}" | chpasswd \
+&& groupadd --gid 1010 ${GROUP_NAME} \
+&& usermod -aG ${GROUP_NAME} root \
+&& usermod -aG ${GROUP_NAME} ${USER_NAME}
 
-# Set password for root user
-RUN echo 'root:root' | chpasswd
-# Expose SSH port
-EXPOSE 22
+################################################################################
+# Create necessary directories for build
 
-# Initialize log directory and run initialization script
+# init
+RUN mkdir -p /tmp/init/
+COPY ./scripts/init/ /tmp/init/
+
+# Software Neovim
+ARG NEOVIM_VERSION
+
+################################################################################
+# Run initialization script
+RUN chmod 777 /tmp/init/init.sh
 RUN mkdir -p /var/log && chmod 777 /var/log
-RUN /tmp/scripts/init.sh 2>&1 | tee /var/log/init.log
 
-ENTRYPOINT ["/etc/devenv/entrypoint/entrypoint.sh"]
+RUN /tmp/init/init.sh 2>&1 | tee /var/log/init.log
 
-CMD ["tail", "-f", "/dev/null"]
+# Clean up
+RUN rm -rf /tmp/init/
+
+################################################################################
+# SSH Setup
+
+################################################################################
+# Validate HOST_OS argument
+ARG HOST_OS
+
+# Add os name to environment variable
+RUN \
+if [ ! "$HOST_OS" = "Windows" ] \
+&& [ ! "$HOST_OS" = "MacOS" ] \
+&& [ ! "$HOST_OS" = "Linux" ] ; then \
+echo "Unsupported HOST_OS: $HOST_OS. Supported values are Windows, MacOS, Linux." >&2; \
+exit 1; \
+fi
+
+ENV HOST_OS=$HOST_OS
+
+################################################################################
+# Set default entrypoint and command
+
+ENTRYPOINT ["/etc/devbox/scripts/entrypoint/entrypoint.sh"]
+
+CMD ["/bin/bash"]
