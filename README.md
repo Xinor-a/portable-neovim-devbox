@@ -394,6 +394,8 @@ Or via PowerShell (admin):
 [Environment]::SetEnvironmentVariable("DEVBOX_PATH", "D:\devbox", "User")
 ```
 
+Replace `D:\devbox` with your actual repository path.
+
 #### 8.2.2. Right-Click Context Menu (Explorer)
 
 You can add a **"DevBox"** entry to the Windows Explorer folder context menu so you can open any folder in the devbox container with a right-click.
@@ -405,7 +407,7 @@ HKEY_CURRENT_USER\Software\Classes\Directory\shell\DevBox
 ```
 
 - Set the **(Default)** value to `Open in DevBox` (or any label you prefer).
-- To add an icon, create a string value named `Icon` and set it to the absolute path of `devbox.ico` (e.g. `D:\devbox\devbox.ico`).
+- To add an icon, create a string value named `Icon` and set it as `%DEVBOX_PATH%\devbox.ico`.
 
 Then create a sub-key:
 
@@ -416,10 +418,8 @@ HKEY_CURRENT_USER\Software\Classes\Directory\shell\DevBox\command
 Set the **(Default)** value to:
 
 ```text
-powershell.exe -ExecutionPolicy Bypass "D:\devbox\run-devbox.ps1" -Path "%V"
+powershell.exe -ExecutionPolicy Bypass "%DEVBOX_PATH%\run-devbox.ps1" -Path "%V"
 ```
-
-Replace `D:\devbox` with your actual repository path.
 
 ## 9. 🤝 Contributing
 
