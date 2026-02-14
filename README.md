@@ -188,13 +188,22 @@ Start a devbox container with access to the shared volumes and your project dire
 
 ```bash
 docker run --rm -it \
-    -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
-    --volumes-from "$(docker compose ps -aq devbox-storage)" \
+    --volumes-from devbox-storage-master \
     -v /path/to/project:/home/user/project \
     devbox:latest
 ```
 
 Replace `/path/to/project` with the absolute path to your project directory.
+
+> **Linux (Docker Engine) only:** Add `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)` to match bind-mounted file ownership with your host user. On Windows/macOS (Docker Desktop), this is unnecessary because the VM layer handles permissions automatically.
+
+```bash
+docker run --rm -it \
+    `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)` \
+    --volumes-from devbox-storage-master \
+    -v /path/to/project:/home/user/project \
+    devbox:latest
+```
 
 ## 6. 📖 Usage
 
@@ -204,8 +213,7 @@ Start a new devbox container with the shared volumes and your project mounted:
 
 ```bash
 docker run --rm -it \
-    -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
-    --volumes-from "$(docker compose ps -aq devbox-storage)" \
+    --volumes-from devbox-storage-master \
     -v /path/to/project:/home/user/project \
     devbox:latest
 ```
@@ -343,16 +351,9 @@ Once you have built the image with `docker compose build`, it is tagged as `devb
 
 ```bash
 docker run --rm -it \
-    -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
-    --volumes-from <devbox-storage-container> \
+    --volumes-from devbox-storage-master \
     -v /path/to/project:/home/user/project \
     devbox:latest
-```
-
-Replace `<devbox-storage-container>` with the name or ID of your devbox-storage container. You can find it with:
-
-```bash
-docker ps -a --filter "ancestor=busybox" --format "{{.Names}}"
 ```
 
 This allows you to spin up devbox containers anywhere without rebuilding or creating additional compose files, while sharing persistent data through the `devbox-storage` volumes.
