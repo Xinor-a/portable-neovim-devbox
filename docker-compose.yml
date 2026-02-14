@@ -19,7 +19,11 @@ services:
             - NO_PROXY=${NO_PROXY:-}
         tty: true
     devbox-storage:
-        image: busybox
+        build:
+            context: .
+            dockerfile: storage.dockerfile
+        image: devbox-storage:latest
+        container_name: devbox-storage-master
         volumes:
             - devbox-data:/etc/devbox/
             - root-dotssh:/root/.ssh
