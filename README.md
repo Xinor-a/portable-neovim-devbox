@@ -233,10 +233,12 @@ docker exec -it <container-id> /bin/bash
 ```plaintext
 ProjectRoot/
 ├── .env                        # Environment variables for Docker build
+├── devbox.ico                  # DevBox icon (for Windows context menu)
 ├── docker-compose.yml          # Docker Compose service definition
 ├── dockerfile                  # Docker image build configuration
 ├── LICENSE                     # MIT License
 ├── README.md                   # This file
+├── run-devbox.ps1              # Launch script for Windows (PowerShell)
 ├── dotfiles/                   # Configuration files for tools in the container
 │   ├── git/
 │   │   ├── .gitattributes      # Git attributes
@@ -332,6 +334,12 @@ ProjectRoot/
 | `1-3_Starship/subentry.sh` | Starship runtime setup                                          |
 | `1-4_Tmux/subentry.sh`     | Tmux runtime setup                                              |
 
+#### 7.3.3. Host Launch Scripts
+
+| File             | Description                          |
+| :--------------- | :----------------------------------- |
+| `run-devbox.ps1` | PowerShell launch script for Windows |
+
 ### 7.4. Docker Volumes
 
 All volumes are managed by the `devbox-storage` data-only container and shared with devbox containers via `--volumes-from`.
@@ -357,6 +365,61 @@ docker run --rm -it \
 ```
 
 This allows you to spin up devbox containers anywhere without rebuilding or creating additional compose files, while sharing persistent data through the `devbox-storage` volumes.
+
+### 8.1. Launch Scripts
+
+The repository includes launch scripts that automate volume creation and container startup. They check whether the required Docker volumes exist, create them if missing, and then run the devbox container with the specified project directory.
+
+#### 8.1.1. Windows (PowerShell)
+
+```powershell
+.\run-devbox.ps1 -Path "C:\path\to\project"
+```
+
+### 8.2. Windows Setup
+
+#### 8.2.1. Environment Variable
+
+Set the `DEVBOX_PATH` environment variable to the repository root so the launch script can locate `docker-compose.yml`:
+
+1. Open **Settings** > **System** > **About** > **Advanced system settings**.
+2. Click **Environment Variables**.
+3. Under **User variables**, click **New** and add:
+   - **Variable name:** `DEVBOX_PATH`
+   - **Variable value:** the absolute path to this repository (e.g. `D:\devbox`)
+
+Or via PowerShell (admin):
+
+```powershell
+[Environment]::SetEnvironmentVariable("DEVBOX_PATH", "D:\devbox", "User")
+```
+
+#### 8.2.2. Right-Click Context Menu (Explorer)
+
+You can add a **"DevBox"** entry to the Windows Explorer folder context menu so you can open any folder in the devbox container with a right-click.
+
+Open **Registry Editor** (`regedit`) and create the following key:
+
+```text
+HKEY_CURRENT_USER\Software\Classes\Directory\shell\DevBox
+```
+
+- Set the **(Default)** value to `Open in DevBox` (or any label you prefer).
+- To add an icon, create a string value named `Icon` and set it to the absolute path of `devbox.ico` (e.g. `D:\devbox\devbox.ico`).
+
+Then create a sub-key:
+
+```text
+HKEY_CURRENT_USER\Software\Classes\Directory\shell\DevBox\command
+```
+
+Set the **(Default)** value to:
+
+```text
+powershell.exe -ExecutionPolicy Bypass "D:\devbox\run-devbox.ps1" -Path "%V"
+```
+
+Replace `D:\devbox` with your actual repository path.
 
 ## 9. 🤝 Contributing
 
